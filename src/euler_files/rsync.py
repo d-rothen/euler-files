@@ -26,7 +26,7 @@ def run_rsync(
     Trailing slash on source is critical: copies contents of source
     into target, not source itself as a subdirectory.
 
-    All rsync output goes to stderr (stdout is reserved for export statements).
+    rsync output is suppressed; only warnings/errors are printed to stderr.
     """
     cmd = [
         "rsync",
@@ -51,8 +51,8 @@ def run_rsync(
 
     result = subprocess.run(
         cmd,
-        stdout=sys.stderr,  # rsync output → stderr
-        stderr=sys.stderr,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
     )
 
     if result.returncode != 0:
