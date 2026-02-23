@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -39,6 +40,9 @@ def run_sync(
         _err("No variables to sync.")
         return
 
+    _err(f"euler-files: syncing {len(vars_to_sync)} variable(s) to {config.scratch_base}")
+    _err("")
+
     results: Dict[str, Path] = {}
     errors: List[str] = []
 
@@ -63,7 +67,23 @@ def run_sync(
                 results[name] = scratch_path
             except Exception as exc:
                 errors.append(f"{name}: {exc}")
-                _err(f"[ERROR] Failed to sync {name}: {exc}")
+                _err(f"  [ERROR] Failed to sync {name}: {exc}")
+
+    # Summary: show what will be exported
+    _err("")
+    _err("Environment variables:")
+    for name in sorted(results):
+        scratch_path = results[name]
+        old_val = os.environ.get(name)
+        if old_val:
+            _err(f"  {name}")
+            _err(f"    was: {old_val}")
+            _err(f"    now: {scratch_path}")
+        else:
+            _err(f"  {name}")
+            _err(f"    set: {scratch_path}")
+
+    _err("")
 
     # Output export statements to stdout (this is what eval captures)
     for name in sorted(results):
@@ -71,8 +91,10 @@ def run_sync(
         print(f"export {name}={_shell_quote(str(scratch_path))}")
 
     if errors:
-        _err(f"\n{len(errors)} variable(s) failed to sync.")
+        _err(f"{len(errors)} variable(s) failed to sync.")
         sys.exit(1)
+    else:
+        _err("Done. All variables synced successfully.")
 
 
 def _sync_one_var(
@@ -88,17 +110,17 @@ def _sync_one_var(
     target = config.scratch_dir_for(var_name)
 
     if not source.exists():
-        _err(f"[WARN] Source {source} does not exist for {var_name}, skipping rsync")
+        _err(f"  [WARN] {var_name}: source {source} does not exist, skipping rsync")
         target.mkdir(parents=True, exist_ok=True)
         return target
 
     # Smart skip check
     if not force and should_skip(config, var_name, source):
-        _err(f"[SKIP] {var_name} is fresh (no changes detected)")
+        _err(f"  [SKIP] {var_name}: already up-to-date")
         return target
 
     if dry_run:
-        _err(f"[DRY-RUN] Would sync {source} -> {target}")
+        _err(f"  [DRY-RUN] {var_name}: would sync {source} -> {target}")
         return target
 
     # Acquire flock (per-var lock file)
@@ -106,7 +128,7 @@ def _sync_one_var(
     lock_path.parent.mkdir(parents=True, exist_ok=True)
 
     with acquire_lock(lock_path, timeout=config.lock_timeout_seconds):
-        _err(f"[SYNC] {var_name}: {source} -> {target}")
+        _err(f"  [SYNC] {var_name}: {source} -> {target}")
         target.mkdir(parents=True, exist_ok=True)
 
         run_rsync(
