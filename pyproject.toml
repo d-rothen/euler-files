@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "euler-files"
+version = "0.1.0"
+description = "Manage env-var caches on HPC clusters by syncing from slow persistent storage to fast scratch"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+keywords = ["hpc", "euler", "cache", "rsync", "slurm"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Topic :: System :: Systems Administration",
+]
+dependencies = [
+    "click>=8.0",
+    "rich>=12.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "pytest-mock",
+    "ruff",
+]
+
+[project.scripts]
+euler-files = "euler_files.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+target-version = "py38"
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
