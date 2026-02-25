@@ -66,6 +66,49 @@ def push(var: tuple, dry_run: bool) -> None:
         sys.exit(2)
 
 
+@main.group()
+def apptainer() -> None:
+    """Manage Apptainer images from Python venvs."""
+
+
+@apptainer.command(name="init")
+def apptainer_init() -> None:
+    """Interactive setup for apptainer image management."""
+    from euler_files.apptainer.wizard import run_apptainer_wizard
+
+    run_apptainer_wizard()
+
+
+@apptainer.command(name="build")
+@click.argument("venv_name", required=False)
+@click.option("--force", is_flag=True, help="Rebuild even if .sif already exists.")
+@click.option("--dry-run", is_flag=True, help="Show what would be done without building.")
+def apptainer_build(venv_name: str, force: bool, dry_run: bool) -> None:
+    """Build an Apptainer .sif image from a uv venv."""
+    from euler_files.apptainer.build import run_build
+
+    try:
+        run_build(venv_name=venv_name, force=force, dry_run=dry_run)
+    except (FileNotFoundError, ValueError, RuntimeError) as exc:
+        click.echo(f"Error: {exc}", err=True)
+        sys.exit(2)
+
+
+@apptainer.command(name="sync")
+@click.option("--dry-run", is_flag=True, help="Show what would be synced.")
+@click.option("--force", is_flag=True, help="Ignore freshness checks.")
+@click.option("--image", multiple=True, help="Sync only specific image(s). Can be repeated.")
+def apptainer_sync(dry_run: bool, force: bool, image: tuple) -> None:
+    """Sync .sif images to scratch."""
+    from euler_files.apptainer.sync import run_apptainer_sync
+
+    try:
+        run_apptainer_sync(dry_run=dry_run, force=force, only_images=list(image) or None)
+    except (FileNotFoundError, ValueError) as exc:
+        click.echo(f"Error: {exc}", err=True)
+        sys.exit(2)
+
+
 @main.command(name="shell-init")
 @click.option(
     "--shell",

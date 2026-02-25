@@ -65,3 +65,40 @@ def run_rsync(
             )
         else:
             raise RsyncError(f"rsync failed with exit code {result.returncode}")
+
+
+def rsync_file(
+    source: Path,
+    target: Path,
+    extra_args: Optional[List[str]] = None,
+) -> None:
+    """rsync a single file (no trailing-slash semantics).
+
+    Useful for syncing large .sif files with resumable partial transfer.
+    """
+    cmd = [
+        "rsync",
+        "-a",
+        "--info=progress2",
+        "--human-readable",
+    ]
+
+    if extra_args:
+        cmd.extend(extra_args)
+
+    cmd.append(str(source))
+
+    target.parent.mkdir(parents=True, exist_ok=True)
+    cmd.append(str(target))
+
+    result = subprocess.run(
+        cmd,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+
+    if result.returncode != 0:
+        raise RsyncError(
+            f"rsync failed with exit code {result.returncode} "
+            f"syncing {source} -> {target}"
+        )
