@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, call
 
 import pytest
 
@@ -15,7 +15,7 @@ from euler_files.config import (
     load_config,
     save_config,
 )
-from euler_files.apptainer.build import run_build
+from euler_files.apptainer.build import run_build, _create_tarball
 
 
 def _make_config(tmp_path: Path, venv_base: Path) -> Path:
@@ -73,17 +73,31 @@ class TestRunBuild:
 
         run_build(venv_name="my-env", dry_run=True, config_path=config_path)
 
+        # Neither tar nor apptainer should be called
         mock_run.assert_not_called()
 
+    @patch("euler_files.apptainer.build._create_tarball")
     @patch("euler_files.apptainer.build.subprocess.run")
-    def test_successful_build(self, mock_run: MagicMock, tmp_path: Path) -> None:
+    def test_successful_build(
+        self, mock_run: MagicMock, mock_tar: MagicMock, tmp_path: Path
+    ) -> None:
         mock_run.return_value = MagicMock(returncode=0)
+        # Simulate tar creating the file
+        def fake_tar(venv_path, tar_path):
+            tar_path.write_bytes(b"fake-tar-content")
+        mock_tar.side_effect = fake_tar
 
         venv_base = tmp_path / "venvs"
         _make_venv(venv_base, "my-env")
         config_path = _make_config(tmp_path, venv_base)
 
         run_build(venv_name="my-env", config_path=config_path)
+
+        # Verify tarball creation was called with correct paths
+        mock_tar.assert_called_once()
+        tar_call_args = mock_tar.call_args[0]
+        assert tar_call_args[0] == venv_base / "my-env"  # venv_path
+        assert str(tar_call_args[1]).endswith("my-env.tar")  # tar_path
 
         # Verify apptainer build was called
         mock_run.assert_called_once()
@@ -102,6 +116,10 @@ class TestRunBuild:
         assert img.sif_filename == "my-env.sif"
         assert img.built_at > 0
 
+        # Verify tarball was cleaned up
+        tar_path = tmp_path / "sif-store" / "my-env.tar"
+        assert not tar_path.exists()
+
     @patch("euler_files.apptainer.build.subprocess.run")
     def test_skip_existing_sif(self, mock_run: MagicMock, tmp_path: Path) -> None:
         venv_base = tmp_path / "venvs"
@@ -116,9 +134,15 @@ class TestRunBuild:
 
         mock_run.assert_not_called()
 
+    @patch("euler_files.apptainer.build._create_tarball")
     @patch("euler_files.apptainer.build.subprocess.run")
-    def test_force_rebuilds_existing(self, mock_run: MagicMock, tmp_path: Path) -> None:
+    def test_force_rebuilds_existing(
+        self, mock_run: MagicMock, mock_tar: MagicMock, tmp_path: Path
+    ) -> None:
         mock_run.return_value = MagicMock(returncode=0)
+        def fake_tar(venv_path, tar_path):
+            tar_path.write_bytes(b"fake-tar-content")
+        mock_tar.side_effect = fake_tar
 
         venv_base = tmp_path / "venvs"
         _make_venv(venv_base, "my-env")
@@ -130,11 +154,18 @@ class TestRunBuild:
 
         run_build(venv_name="my-env", force=True, config_path=config_path)
 
+        mock_tar.assert_called_once()
         mock_run.assert_called_once()
 
+    @patch("euler_files.apptainer.build._create_tarball")
     @patch("euler_files.apptainer.build.subprocess.run")
-    def test_build_failure(self, mock_run: MagicMock, tmp_path: Path) -> None:
+    def test_build_failure_cleans_up_tarball(
+        self, mock_run: MagicMock, mock_tar: MagicMock, tmp_path: Path
+    ) -> None:
         mock_run.return_value = MagicMock(returncode=1)
+        def fake_tar(venv_path, tar_path):
+            tar_path.write_bytes(b"fake-tar-content")
+        mock_tar.side_effect = fake_tar
 
         venv_base = tmp_path / "venvs"
         _make_venv(venv_base, "my-env")
@@ -143,9 +174,19 @@ class TestRunBuild:
         with pytest.raises(RuntimeError, match="exit code 1"):
             run_build(venv_name="my-env", config_path=config_path)
 
+        # Tarball should still be cleaned up even on build failure
+        tar_path = tmp_path / "sif-store" / "my-env.tar"
+        assert not tar_path.exists()
+
+    @patch("euler_files.apptainer.build._create_tarball")
     @patch("euler_files.apptainer.build.subprocess.run")
-    def test_def_file_written(self, mock_run: MagicMock, tmp_path: Path) -> None:
+    def test_def_file_references_tarball(
+        self, mock_run: MagicMock, mock_tar: MagicMock, tmp_path: Path
+    ) -> None:
         mock_run.return_value = MagicMock(returncode=0)
+        def fake_tar(venv_path, tar_path):
+            tar_path.write_bytes(b"fake-tar-content")
+        mock_tar.side_effect = fake_tar
 
         venv_base = tmp_path / "venvs"
         _make_venv(venv_base, "my-env")
@@ -158,3 +199,49 @@ class TestRunBuild:
         content = def_path.read_text()
         assert "Bootstrap: docker" in content
         assert "python:3.11-slim" in content
+        # Def should reference the tar, not the venv directory
+        assert "my-env.tar" in content
+        assert "/tmp/venv.tar" in content
+        assert "tar xf" in content
+
+
+class TestCreateTarball:
+    def test_creates_tarball(self, tmp_path: Path) -> None:
+        # Create a mock venv directory
+        venv = tmp_path / "venvs" / "test-env"
+        venv.mkdir(parents=True)
+        (venv / "pyvenv.cfg").write_text("version = 3.11\n")
+        (venv / "bin").mkdir()
+        (venv / "bin" / "python").write_text("#!/usr/bin/env python3\n")
+        (venv / "lib").mkdir()
+        (venv / "lib" / "module.py").write_text("x = 1\n")
+
+        tar_path = tmp_path / "test-env.tar"
+        _create_tarball(venv, tar_path)
+
+        assert tar_path.exists()
+        assert tar_path.stat().st_size > 0
+
+    def test_tarball_contains_venv(self, tmp_path: Path) -> None:
+        import tarfile
+
+        venv = tmp_path / "venvs" / "my-env"
+        venv.mkdir(parents=True)
+        (venv / "pyvenv.cfg").write_text("version = 3.11\n")
+        (venv / "bin").mkdir()
+        (venv / "bin" / "python").write_text("#!/usr/bin/env python3\n")
+
+        tar_path = tmp_path / "my-env.tar"
+        _create_tarball(venv, tar_path)
+
+        with tarfile.open(tar_path) as tf:
+            names = tf.getnames()
+            # Top-level should be the venv directory name
+            assert any("my-env" in n for n in names)
+            assert any("pyvenv.cfg" in n for n in names)
+            assert any("bin/python" in n for n in names)
+
+    def test_nonexistent_venv_raises(self, tmp_path: Path) -> None:
+        tar_path = tmp_path / "out.tar"
+        with pytest.raises(RuntimeError, match="tar failed"):
+            _create_tarball(tmp_path / "nonexistent", tar_path)

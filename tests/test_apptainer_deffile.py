@@ -9,7 +9,7 @@ class TestGenerateDefFile:
     def test_basic_output(self) -> None:
         result = generate_def_file(
             venv_name="my-env",
-            venv_source_path="/home/user/venvs/my-env",
+            tar_path="/home/user/.cache/euler-files/sif/my-env.tar",
             python_version="3.11.5",
         )
 
@@ -18,31 +18,44 @@ class TestGenerateDefFile:
         assert "VenvName my-env" in result
         assert "PythonVersion 3.11.5" in result
 
-    def test_files_section(self) -> None:
+    def test_files_section_copies_tarball(self) -> None:
         result = generate_def_file(
             venv_name="test",
-            venv_source_path="/path/to/venv",
+            tar_path="/path/to/test.tar",
             python_version="3.12.0",
         )
 
-        assert "/path/to/venv /opt/venv" in result
+        assert "/path/to/test.tar /tmp/venv.tar" in result
+
+    def test_post_extracts_tarball(self) -> None:
+        result = generate_def_file(
+            venv_name="test",
+            tar_path="/path/to/test.tar",
+            python_version="3.11.5",
+        )
+
+        assert "tar xf /tmp/venv.tar" in result
+        assert "--strip-components=1" in result
+        assert "rm -f /tmp/venv.tar" in result
 
     def test_custom_container_path(self) -> None:
         result = generate_def_file(
             venv_name="test",
-            venv_source_path="/path/to/venv",
+            tar_path="/path/to/test.tar",
             python_version="3.11.5",
             container_venv_path="/app/venv",
         )
 
-        assert "/path/to/venv /app/venv" in result
+        # tar extraction uses $CONTAINER_VENV shell variable, set to the custom path
+        assert 'CONTAINER_VENV="/app/venv"' in result
+        assert 'tar xf /tmp/venv.tar -C "$CONTAINER_VENV"' in result
         assert 'VIRTUAL_ENV="/app/venv"' in result
         assert '"/app/venv/bin:$PATH"' in result
 
     def test_custom_base_image(self) -> None:
         result = generate_def_file(
             venv_name="test",
-            venv_source_path="/venv",
+            tar_path="/path/to/test.tar",
             python_version="3.11.5",
             base_image_template="registry.local/python:{version}",
         )
@@ -52,7 +65,7 @@ class TestGenerateDefFile:
     def test_post_fixups_present(self) -> None:
         result = generate_def_file(
             venv_name="test",
-            venv_source_path="/venv",
+            tar_path="/path/to/test.tar",
             python_version="3.11.5",
         )
 
@@ -65,7 +78,7 @@ class TestGenerateDefFile:
     def test_environment_section(self) -> None:
         result = generate_def_file(
             venv_name="test",
-            venv_source_path="/venv",
+            tar_path="/path/to/test.tar",
             python_version="3.11.5",
         )
 
@@ -75,7 +88,7 @@ class TestGenerateDefFile:
     def test_runscript(self) -> None:
         result = generate_def_file(
             venv_name="test",
-            venv_source_path="/venv",
+            tar_path="/path/to/test.tar",
             python_version="3.11.5",
         )
 
@@ -85,7 +98,7 @@ class TestGenerateDefFile:
         """Test that {full_version} can be used in base image template."""
         result = generate_def_file(
             venv_name="test",
-            venv_source_path="/venv",
+            tar_path="/path/to/test.tar",
             python_version="3.11.5",
             base_image_template="python:{full_version}",
         )

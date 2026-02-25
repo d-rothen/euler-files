@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+# Tarball-based template: copies a single .tar file instead of the directory
+# tree. This is dramatically faster on shared HPC filesystems (GPFS/Lustre)
+# because tar reads sequentially (one open, one stream) while %files on a
+# directory does per-file stat+open+read — tens of thousands of metadata ops.
 APPTAINER_DEF_TEMPLATE = """\
 Bootstrap: docker
 From: {base_image}
@@ -12,13 +16,18 @@ From: {base_image}
     PythonVersion {python_version}
 
 %files
-    {venv_source_path} {container_venv_path}
+    {tar_path} /tmp/venv.tar
 
 %post
     set -e
 
     CONTAINER_VENV="{container_venv_path}"
     PYTHON_MM="{python_major_minor}"
+
+    # Extract the pre-packed venv tarball
+    mkdir -p "$CONTAINER_VENV"
+    tar xf /tmp/venv.tar -C "$CONTAINER_VENV" --strip-components=1
+    rm -f /tmp/venv.tar
 
     # Fix pyvenv.cfg to point to the container's system Python
     PYVENV_CFG="$CONTAINER_VENV/pyvenv.cfg"
@@ -56,12 +65,25 @@ From: {base_image}
 
 def generate_def_file(
     venv_name: str,
-    venv_source_path: str,
+    tar_path: str,
     python_version: str,
     container_venv_path: str = "/opt/venv",
     base_image_template: str = "python:{version}-slim",
 ) -> str:
-    """Generate an Apptainer definition file for packaging a venv."""
+    """Generate an Apptainer definition file for packaging a venv.
+
+    The definition file expects a pre-packed tarball of the venv directory
+    (created by the build step). This avoids per-file metadata operations
+    on slow shared filesystems — tar reads sequentially, which is orders
+    of magnitude faster than copying thousands of individual files.
+
+    Args:
+        venv_name: Name of the venv (used in labels).
+        tar_path: Absolute path to the venv tarball (.tar file).
+        python_version: Full Python version string (e.g. "3.11.5").
+        container_venv_path: Where the venv will live inside the container.
+        base_image_template: Docker image template ({version} = major.minor).
+    """
     python_major_minor = ".".join(python_version.split(".")[:2])
     base_image = base_image_template.format(
         version=python_major_minor,
@@ -70,7 +92,7 @@ def generate_def_file(
     return APPTAINER_DEF_TEMPLATE.format(
         base_image=base_image,
         venv_name=venv_name,
-        venv_source_path=venv_source_path,
+        tar_path=tar_path,
         python_version=python_version,
         python_major_minor=python_major_minor,
         container_venv_path=container_venv_path,
