@@ -16,7 +16,7 @@ From: {base_image}
     PythonVersion {python_version}
 
 %files
-    {tar_path} /tmp/venv.tar
+    {tar_path} /opt/venv.tar
 
 %post
     set -e
@@ -26,8 +26,8 @@ From: {base_image}
 
     # Extract the pre-packed venv tarball
     mkdir -p "$CONTAINER_VENV"
-    tar xf /tmp/venv.tar -C "$CONTAINER_VENV" --strip-components=1
-    rm -f /tmp/venv.tar
+    tar xf /opt/venv.tar -C "$CONTAINER_VENV" --strip-components=1
+    rm -f /opt/venv.tar
 
     # Fix pyvenv.cfg to point to the container's system Python
     PYVENV_CFG="$CONTAINER_VENV/pyvenv.cfg"

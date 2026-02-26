@@ -25,7 +25,7 @@ class TestGenerateDefFile:
             python_version="3.12.0",
         )
 
-        assert "/path/to/test.tar /tmp/venv.tar" in result
+        assert "/path/to/test.tar /opt/venv.tar" in result
 
     def test_post_extracts_tarball(self) -> None:
         result = generate_def_file(
@@ -34,9 +34,9 @@ class TestGenerateDefFile:
             python_version="3.11.5",
         )
 
-        assert "tar xf /tmp/venv.tar" in result
+        assert "tar xf /opt/venv.tar" in result
         assert "--strip-components=1" in result
-        assert "rm -f /tmp/venv.tar" in result
+        assert "rm -f /opt/venv.tar" in result
 
     def test_custom_container_path(self) -> None:
         result = generate_def_file(
@@ -48,7 +48,7 @@ class TestGenerateDefFile:
 
         # tar extraction uses $CONTAINER_VENV shell variable, set to the custom path
         assert 'CONTAINER_VENV="/app/venv"' in result
-        assert 'tar xf /tmp/venv.tar -C "$CONTAINER_VENV"' in result
+        assert 'tar xf /opt/venv.tar -C "$CONTAINER_VENV"' in result
         assert 'VIRTUAL_ENV="/app/venv"' in result
         assert '"/app/venv/bin:$PATH"' in result
 

@@ -201,7 +201,7 @@ class TestRunBuild:
         assert "python:3.11-slim" in content
         # Def should reference the tar, not the venv directory
         assert "my-env.tar" in content
-        assert "/tmp/venv.tar" in content
+        assert "/opt/venv.tar" in content
         assert "tar xf" in content
 
 
