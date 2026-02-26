@@ -27,6 +27,12 @@ def run_sync(
     export statements to stdout for eval $(euler-files sync).
     """
     config = load_config(config_path)
+
+    from euler_files.congruency import check_congruency, format_warnings
+    cong_warnings = check_congruency(config)
+    if cong_warnings:
+        _err(format_warnings(cong_warnings))
+
     _ensure_scratch_exists(config)
 
     # Filter to enabled vars, optionally subset

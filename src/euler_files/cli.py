@@ -130,6 +130,27 @@ def apptainer_sync(dry_run: bool, force: bool, image: tuple) -> None:
         sys.exit(2)
 
 
+@main.command()
+@click.argument("what", required=False)
+@click.option("--to", "to_path", required=False, help="New location.")
+@click.option("--dry-run", is_flag=True, help="Show what would be done.")
+@click.option("--no-delete", is_flag=True, help="Keep old directory after migration.")
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt.")
+def migrate(what: str, to_path: str, dry_run: bool, no_delete: bool, yes: bool) -> None:
+    """Migrate a cache or directory to a new location.
+
+    WHAT is a variable name (e.g. HF_HOME) or config field (e.g. venv_base, sif_store).
+    If omitted, runs an interactive wizard.
+    """
+    from euler_files.migrate import run_migrate
+
+    try:
+        run_migrate(what=what, to_path=to_path, dry_run=dry_run, keep_old=no_delete, yes=yes)
+    except (FileNotFoundError, ValueError, RuntimeError) as exc:
+        click.echo(f"Error: {exc}", err=True)
+        sys.exit(2)
+
+
 @main.command(name="shell-init")
 @click.option(
     "--shell",

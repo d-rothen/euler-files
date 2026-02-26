@@ -19,6 +19,11 @@ def show_status() -> None:
     """Display sync status for all managed variables."""
     config = load_config()
 
+    from euler_files.congruency import check_congruency, format_warnings
+    cong_warnings = check_congruency(config)
+    if cong_warnings:
+        console.print(f"[yellow]{format_warnings(cong_warnings)}[/yellow]")
+
     table = Table(title="euler-files status", border_style="blue")
     table.add_column("Variable", style="bold")
     table.add_column("Source Size", justify="right")

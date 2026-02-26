@@ -33,6 +33,11 @@ def run_build(
     """Build an Apptainer .sif image from a uv venv."""
     config = load_config(config_path)
 
+    from euler_files.congruency import check_congruency, format_warnings
+    cong_warnings = check_congruency(config)
+    if cong_warnings:
+        _err(format_warnings(cong_warnings))
+
     if config.apptainer is None:
         raise FileNotFoundError(
             "Apptainer not configured. Run 'euler-files apptainer init' first."

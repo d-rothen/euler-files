@@ -53,6 +53,17 @@ class ApptainerConfig:
 
 
 @dataclass
+class MigrationRecord:
+    """Record of a single migration event."""
+
+    old_path: str       # Absolute path before migration
+    new_path: str       # Absolute path after migration
+    migrated_at: float  # Unix timestamp
+    field_name: str     # Config field updated: "source", "venv_base", "sif_store"
+    var_name: str = ""  # For var migrations: the env var name; empty for apptainer fields
+
+
+@dataclass
 class EulerFilesConfig:
     """Top-level configuration."""
 
@@ -65,6 +76,7 @@ class EulerFilesConfig:
     lock_timeout_seconds: int = 300
     skip_if_fresh_seconds: int = 3600
     apptainer: Optional[ApptainerConfig] = None
+    migrations: List[MigrationRecord] = field(default_factory=list)
 
     def scratch_dir_for(self, var_name: str) -> Path:
         """Return the scratch target directory for a given env var."""
@@ -119,6 +131,9 @@ def load_config(path: Optional[Path] = None) -> EulerFilesConfig:
             images=images,
         )
 
+    # Deserialize migration records if present
+    migrations = [MigrationRecord(**m) for m in raw.get("migrations", [])]
+
     return EulerFilesConfig(
         version=raw["version"],
         scratch_base=scratch_base,
@@ -129,6 +144,7 @@ def load_config(path: Optional[Path] = None) -> EulerFilesConfig:
         lock_timeout_seconds=raw.get("lock_timeout_seconds", 300),
         skip_if_fresh_seconds=raw.get("skip_if_fresh_seconds", 3600),
         apptainer=apptainer,
+        migrations=migrations,
     )
 
 
@@ -145,6 +161,18 @@ def save_config(config: EulerFilesConfig, path: Optional[Path] = None) -> None:
         "lock_timeout_seconds": config.lock_timeout_seconds,
         "skip_if_fresh_seconds": config.skip_if_fresh_seconds,
     }
+
+    if config.migrations:
+        raw["migrations"] = [
+            {
+                "old_path": m.old_path,
+                "new_path": m.new_path,
+                "migrated_at": m.migrated_at,
+                "field_name": m.field_name,
+                "var_name": m.var_name,
+            }
+            for m in config.migrations
+        ]
 
     if config.apptainer is not None:
         apt = config.apptainer

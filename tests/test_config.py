@@ -10,6 +10,7 @@ import pytest
 from euler_files.config import (
     CONFIG_VERSION,
     EulerFilesConfig,
+    MigrationRecord,
     VarConfig,
     load_config,
     save_config,
@@ -101,3 +102,61 @@ def test_defaults() -> None:
     assert config.lock_timeout_seconds == 300
     assert config.skip_if_fresh_seconds == 3600
     assert config.rsync_extra_args == []
+    assert config.migrations == []
+
+
+def test_migration_record_roundtrip(tmp_path: Path) -> None:
+    config = EulerFilesConfig(
+        scratch_base="/scratch",
+        vars={"HF_HOME": VarConfig(source="/new/hf")},
+        migrations=[
+            MigrationRecord(
+                old_path="/old/hf",
+                new_path="/new/hf",
+                migrated_at=1700000000.0,
+                field_name="source",
+                var_name="HF_HOME",
+            ),
+            MigrationRecord(
+                old_path="/old/venvs",
+                new_path="/data/venvs",
+                migrated_at=1700001000.0,
+                field_name="venv_base",
+                var_name="",
+            ),
+        ],
+    )
+    config_path = tmp_path / "config.json"
+    save_config(config, path=config_path)
+
+    loaded = load_config(path=config_path)
+    assert len(loaded.migrations) == 2
+    assert loaded.migrations[0].old_path == "/old/hf"
+    assert loaded.migrations[0].new_path == "/new/hf"
+    assert loaded.migrations[0].migrated_at == 1700000000.0
+    assert loaded.migrations[0].field_name == "source"
+    assert loaded.migrations[0].var_name == "HF_HOME"
+    assert loaded.migrations[1].field_name == "venv_base"
+    assert loaded.migrations[1].var_name == ""
+
+
+def test_old_config_without_migrations_loads(tmp_path: Path) -> None:
+    """Config JSON without 'migrations' key loads with empty list."""
+    config_path = tmp_path / "config.json"
+    config_path.write_text(json.dumps({
+        "version": CONFIG_VERSION,
+        "scratch_base": "/scratch",
+        "vars": {},
+    }))
+    loaded = load_config(path=config_path)
+    assert loaded.migrations == []
+
+
+def test_empty_migrations_not_serialized(tmp_path: Path) -> None:
+    """Empty migrations list is omitted from JSON to keep config clean."""
+    config = EulerFilesConfig(scratch_base="/scratch", vars={})
+    config_path = tmp_path / "config.json"
+    save_config(config, path=config_path)
+
+    raw = json.loads(config_path.read_text())
+    assert "migrations" not in raw

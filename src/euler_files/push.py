@@ -23,6 +23,11 @@ def run_push(
     """
     config = load_config()
 
+    from euler_files.congruency import check_congruency, format_warnings
+    cong_warnings = check_congruency(config)
+    if cong_warnings:
+        _err(format_warnings(cong_warnings))
+
     vars_to_push = {
         name: vc
         for name, vc in config.vars.items()
