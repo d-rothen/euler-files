@@ -94,6 +94,27 @@ def apptainer_build(venv_name: str, force: bool, dry_run: bool) -> None:
         sys.exit(2)
 
 
+@apptainer.command(name="prune")
+@click.argument("image_name", required=False)
+@click.option(
+    "--mode",
+    type=click.Choice(["both", "venv", "sif"]),
+    default=None,
+    help="What to remove: both, venv only, or sif only.",
+)
+@click.option("--dry-run", is_flag=True, help="Show what would be deleted.")
+@click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt.")
+def apptainer_prune(image_name: str, mode: str, dry_run: bool, yes: bool) -> None:
+    """Remove venvs, .sif images, or both."""
+    from euler_files.apptainer.prune import run_prune
+
+    try:
+        run_prune(image_name=image_name, mode=mode, dry_run=dry_run, yes=yes)
+    except (FileNotFoundError, ValueError) as exc:
+        click.echo(f"Error: {exc}", err=True)
+        sys.exit(2)
+
+
 @apptainer.command(name="sync")
 @click.option("--dry-run", is_flag=True, help="Show what would be synced.")
 @click.option("--force", is_flag=True, help="Ignore freshness checks.")
