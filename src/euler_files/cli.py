@@ -115,6 +115,24 @@ def apptainer_prune(image_name: str, mode: str, dry_run: bool, yes: bool) -> Non
         sys.exit(2)
 
 
+@apptainer.command(name="fixup")
+@click.argument("venv_name", required=False)
+@click.option("--dry-run", is_flag=True, help="Show what would be fixed without changing files.")
+def apptainer_fixup(venv_name: str, dry_run: bool) -> None:
+    """Fix venv internal paths after moving venv_base.
+
+    Rewrites bin/activate and shebangs to match the venv's actual location.
+    Fixes one venv if VENV_NAME is given, otherwise fixes all.
+    """
+    from euler_files.apptainer.fixup import run_fixup
+
+    try:
+        run_fixup(venv_name=venv_name, dry_run=dry_run)
+    except (FileNotFoundError, ValueError) as exc:
+        click.echo(f"Error: {exc}", err=True)
+        sys.exit(2)
+
+
 @apptainer.command(name="sync")
 @click.option("--dry-run", is_flag=True, help="Show what would be synced.")
 @click.option("--force", is_flag=True, help="Ignore freshness checks.")
