@@ -14,7 +14,7 @@ from euler_files.config import (
     load_config,
     save_config,
 )
-from euler_files.migrate import run_migrate
+from euler_files.migrate import run_migrate, _fixup_venvs
 
 
 def _make_config(
@@ -249,3 +249,104 @@ class TestRunMigrate:
 
         # Old directory should be removed
         assert not old_source.exists()
+
+
+class TestFixupVenvs:
+    def _make_venv(self, base: Path, name: str) -> Path:
+        """Create a mock venv with hardcoded paths."""
+        venv = base / name
+        venv.mkdir(parents=True)
+        (venv / "pyvenv.cfg").write_text(
+            f"home = /usr/bin\nversion_info = 3.11.5\n"
+        )
+        bin_dir = venv / "bin"
+        bin_dir.mkdir()
+        # Activate script with VIRTUAL_ENV
+        (bin_dir / "activate").write_text(
+            f'VIRTUAL_ENV="{base}/{name}"\nexport VIRTUAL_ENV\n'
+        )
+        # pip script with shebang
+        (bin_dir / "pip").write_text(
+            f"#!/{base}/{name}/bin/python\nimport sys\n"
+        )
+        # python symlink (points to system python — unchanged by fixup)
+        (bin_dir / "python").write_text("#!/usr/bin/env python3\n")
+        # Binary file — should be skipped
+        (bin_dir / "data.bin").write_bytes(b"\x00\x01\x02\x03")
+        return venv
+
+    def test_fixup_rewrites_activate(self, tmp_path: Path) -> None:
+        old_base = tmp_path / "old_venvs"
+        new_base = tmp_path / "new_venvs"
+        old_base.mkdir()
+        self._make_venv(old_base, "myenv")
+
+        # Simulate rsync by copying
+        import shutil
+        shutil.copytree(old_base, new_base)
+
+        _fixup_venvs(new_base, str(old_base), str(new_base))
+
+        activate = (new_base / "myenv" / "bin" / "activate").read_text()
+        assert str(new_base / "myenv") in activate
+        assert str(old_base / "myenv") not in activate
+
+    def test_fixup_rewrites_shebangs(self, tmp_path: Path) -> None:
+        old_base = tmp_path / "old_venvs"
+        new_base = tmp_path / "new_venvs"
+        old_base.mkdir()
+        self._make_venv(old_base, "myenv")
+
+        import shutil
+        shutil.copytree(old_base, new_base)
+
+        _fixup_venvs(new_base, str(old_base), str(new_base))
+
+        pip = (new_base / "myenv" / "bin" / "pip").read_text()
+        assert pip.startswith(f"#!/{new_base}/myenv/bin/python")
+        assert str(old_base) not in pip
+        # Body preserved
+        assert "import sys" in pip
+
+    def test_fixup_skips_non_venvs(self, tmp_path: Path) -> None:
+        """Directories without pyvenv.cfg are ignored."""
+        new_base = tmp_path / "venvs"
+        new_base.mkdir()
+        not_venv = new_base / "random_dir"
+        not_venv.mkdir()
+        (not_venv / "somefile.txt").write_text("hello")
+
+        # Should not crash
+        _fixup_venvs(new_base, "/old", str(new_base))
+
+    def test_fixup_skips_binary_files(self, tmp_path: Path) -> None:
+        old_base = tmp_path / "old"
+        new_base = tmp_path / "new"
+        old_base.mkdir()
+        self._make_venv(old_base, "env")
+
+        import shutil
+        shutil.copytree(old_base, new_base)
+
+        _fixup_venvs(new_base, str(old_base), str(new_base))
+
+        # Binary file should be untouched
+        data = (new_base / "env" / "bin" / "data.bin").read_bytes()
+        assert data == b"\x00\x01\x02\x03"
+
+    def test_fixup_handles_multiple_venvs(self, tmp_path: Path) -> None:
+        old_base = tmp_path / "old"
+        new_base = tmp_path / "new"
+        old_base.mkdir()
+        self._make_venv(old_base, "env1")
+        self._make_venv(old_base, "env2")
+
+        import shutil
+        shutil.copytree(old_base, new_base)
+
+        _fixup_venvs(new_base, str(old_base), str(new_base))
+
+        for name in ("env1", "env2"):
+            activate = (new_base / name / "bin" / "activate").read_text()
+            assert str(new_base / name) in activate
+            assert str(old_base / name) not in activate

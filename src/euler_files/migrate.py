@@ -78,8 +78,12 @@ def run_migrate(
     run_rsync(source=old_path, target=dest, delete=True)
     _err("  [RSYNC] Done.")
 
-    # Step 2: Update config
+    # Step 1b: Fix venv internal paths if migrating venv_base
     old_path_str = str(old_path)
+    if config_field == "venv_base":
+        _fixup_venvs(dest, old_path_str, new_path)
+
+    # Step 2: Update config
     _update_config_field(config, target_type, what, new_path)
 
     # Step 3: Record migration
@@ -291,6 +295,66 @@ def _print_export_instructions(
                 border_style="green",
                 padding=(1, 2),
             ))
+
+
+def _fixup_venvs(new_base: Path, old_base_str: str, new_base_str: str) -> None:
+    """Fix internal paths in all venvs after migrating venv_base.
+
+    Venvs contain hardcoded paths in:
+    - bin/activate: VIRTUAL_ENV="/old/path/venvs/myenv"
+    - bin/* shebangs: #!/old/path/venvs/myenv/bin/python
+    These must be rewritten to the new location or python/pip won't work.
+    """
+    if not new_base.is_dir():
+        return
+
+    for child in sorted(new_base.iterdir()):
+        if not child.is_dir():
+            continue
+        # Only process directories that look like venvs
+        if not (child / "pyvenv.cfg").exists():
+            continue
+
+        venv_name = child.name
+        old_venv = f"{old_base_str.rstrip('/')}/{venv_name}"
+        new_venv = f"{new_base_str.rstrip('/')}/{venv_name}"
+
+        fixed = 0
+
+        # Fix bin/activate VIRTUAL_ENV= line
+        activate = child / "bin" / "activate"
+        if activate.is_file():
+            try:
+                text = activate.read_text()
+                new_text = text.replace(old_venv, new_venv)
+                if new_text != text:
+                    activate.write_text(new_text)
+                    fixed += 1
+            except OSError:
+                pass
+
+        # Fix shebangs in all bin/ scripts
+        bin_dir = child / "bin"
+        if bin_dir.is_dir():
+            for script in bin_dir.iterdir():
+                if not script.is_file() or script.name == "activate":
+                    continue
+                try:
+                    raw = script.read_bytes()
+                    # Only process text files with shebangs
+                    if not raw.startswith(b"#!"):
+                        continue
+                    text = raw.decode("utf-8", errors="replace")
+                    first_line, _, rest = text.partition("\n")
+                    new_first = first_line.replace(old_venv, new_venv)
+                    if new_first != first_line:
+                        script.write_text(new_first + "\n" + rest)
+                        fixed += 1
+                except OSError:
+                    pass
+
+        if fixed:
+            _err(f"  [FIXUP] {venv_name}: rewrote {fixed} path(s)")
 
 
 def _err(msg: str) -> None:
