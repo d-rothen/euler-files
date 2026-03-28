@@ -20,6 +20,7 @@ from euler_files.config import (
 def test_save_and_load_roundtrip(tmp_path: Path) -> None:
     config = EulerFilesConfig(
         scratch_base="/scratch/user",
+        uv_cache_dir="/scratch/user/.cache/uv",
         vars={
             "HF_HOME": VarConfig(source="/home/user/.cache/hf"),
             "TORCH_HOME": VarConfig(source="/home/user/.cache/torch", enabled=False),
@@ -33,6 +34,7 @@ def test_save_and_load_roundtrip(tmp_path: Path) -> None:
 
     loaded = load_config(path=config_path)
     assert loaded.scratch_base == "/scratch/user"
+    assert loaded.uv_cache_dir == "/scratch/user/.cache/uv"
     assert len(loaded.vars) == 2
     assert loaded.vars["HF_HOME"].source == "/home/user/.cache/hf"
     assert loaded.vars["HF_HOME"].enabled is True
@@ -90,6 +92,7 @@ def test_save_creates_valid_json(tmp_path: Path) -> None:
     raw = json.loads(config_path.read_text())
     assert raw["version"] == CONFIG_VERSION
     assert raw["scratch_base"] == "$SCRATCH"
+    assert raw["uv_cache_dir"] == ""
     assert raw["vars"]["A"]["source"] == "/a"
     assert raw["vars"]["A"]["enabled"] is True
 
@@ -98,6 +101,7 @@ def test_defaults() -> None:
     config = EulerFilesConfig()
     assert config.version == CONFIG_VERSION
     assert config.cache_root == ".cache/euler-files"
+    assert config.uv_cache_dir == ""
     assert config.parallel_jobs == 4
     assert config.lock_timeout_seconds == 300
     assert config.skip_if_fresh_seconds == 3600

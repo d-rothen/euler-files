@@ -6,6 +6,7 @@ from copy import deepcopy
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple, TypeVar
 
 import click
+from jsonschema import Draft202012Validator
 
 JSON_SCHEMA_DRAFT = "https://json-schema.org/draft/2020-12/schema"
 
@@ -38,6 +39,21 @@ def get_input_json_schema(command_path: str) -> Dict[str, Any]:
 def get_all_input_json_schemas() -> Dict[str, Dict[str, Any]]:
     """Return every registered input schema keyed by command path."""
     return deepcopy(_INPUT_JSON_SCHEMAS)
+
+
+def validate_input_json_schema(command_path: str, payload: Dict[str, Any]) -> None:
+    """Validate a JSON payload against the registered command schema."""
+    schema = get_input_json_schema(command_path)
+    validator = Draft202012Validator(schema)
+    errors = sorted(validator.iter_errors(payload), key=lambda err: list(err.absolute_path))
+    if not errors:
+        return
+
+    first = errors[0]
+    location = ".".join(str(part) for part in first.absolute_path)
+    if location:
+        raise ValueError(f"Invalid input JSON for '{command_path}' at '{location}': {first.message}")
+    raise ValueError(f"Invalid input JSON for '{command_path}': {first.message}")
 
 
 def build_schema_payload(
@@ -251,6 +267,7 @@ def config_schema_defs() -> Dict[str, Any]:
                 "version": integer_schema("Config file version."),
                 "scratch_base": string_schema("Base scratch directory used for cache sync targets."),
                 "cache_root": string_schema("Relative path under scratch_base where euler-files stores caches."),
+                "uv_cache_dir": string_schema("Directory used for uv's shared package cache."),
                 "vars": {
                     "type": "object",
                     "description": "Managed variables keyed by environment variable name.",
@@ -444,14 +461,64 @@ def venv_install_input_schema() -> Dict[str, Any]:
                 ),
                 "python": string_schema("Python version or interpreter passed to 'uv venv'."),
                 "venv_base": string_schema("Override for the configured venv base directory."),
+                "index_url": string_schema("Primary package index URL used for installation."),
+                "extra_index_urls": string_array_schema("Additional package index URLs."),
                 "dry_run": boolean_schema("Equivalent to '--dry-run'."),
             },
-            required=("env_name",),
         ),
-        "anyOf": [
-            {"required": ["packages"]},
-            {"required": ["requirements"]},
-        ],
+    }
+
+
+def venv_migrate_input_schema() -> Dict[str, Any]:
+    """Schema for `euler-files venv migrate --input-json`."""
+    return {
+        "$schema": JSON_SCHEMA_DRAFT,
+        "title": "euler-files venv migrate --input-json payload",
+        "description": "Arguments for rebuilding one venv at a new target location.",
+        **object_schema(
+            {
+                "source": string_schema("Existing venv path to migrate from."),
+                "target": string_schema("New venv path to create."),
+                "python": string_schema("Override Python version or interpreter."),
+                "uv_cache_dir": string_schema("UV cache directory to use during rebuild."),
+                "index_url": string_schema("Primary package index URL."),
+                "extra_index_urls": string_array_schema("Additional package index URLs."),
+                "dry_run": boolean_schema("Equivalent to '--dry-run'."),
+                "verify": boolean_schema("Verify package parity after rebuild."),
+                "overwrite_target": boolean_schema("Allow replacing an existing target directory."),
+                "delete_source": boolean_schema("Delete the source venv after successful verification."),
+                "allow_copy": boolean_schema("Allow cache and target to live on different filesystems."),
+            },
+        ),
+    }
+
+
+def venv_migrate_store_input_schema() -> Dict[str, Any]:
+    """Schema for `euler-files venv migrate-store --input-json`."""
+    return {
+        "$schema": JSON_SCHEMA_DRAFT,
+        "title": "euler-files venv migrate-store --input-json payload",
+        "description": "Arguments for migrating UV_CACHE_DIR and all venvs under a venv base.",
+        **object_schema(
+            {
+                "old_venv_base": string_schema("Current venv base directory."),
+                "new_venv_base": string_schema("New venv base directory."),
+                "old_uv_cache_dir": string_schema("Current uv cache directory."),
+                "new_uv_cache_dir": string_schema("New uv cache directory."),
+                "envs": string_array_schema("Only migrate these venv names."),
+                "exclude_envs": string_array_schema("Skip these venv names."),
+                "index_url": string_schema("Primary package index URL."),
+                "extra_index_urls": string_array_schema("Additional package index URLs."),
+                "dry_run": boolean_schema("Equivalent to '--dry-run'."),
+                "verify": boolean_schema("Verify package parity after each rebuild."),
+                "continue_on_error": boolean_schema("Continue migrating later venvs after a failure."),
+                "overwrite_targets": boolean_schema("Allow replacing existing target venv directories."),
+                "delete_old": boolean_schema("Delete the old cache and venv base after success."),
+                "update_config": boolean_schema("Update stored config fields after success."),
+                "allow_copy": boolean_schema("Allow cache and target directories on different filesystems."),
+                "skip_cache_copy": boolean_schema("Skip copying the old uv cache contents."),
+            },
+        ),
     }
 
 
