@@ -82,6 +82,11 @@ def collect_status(config_path: Optional[Path] = None) -> Dict[str, Any]:
         "warnings": warnings,
         "variables": variables,
         "total_scratch_usage": total,
+        "config": {
+            "scratch_base": config.scratch_base,
+            "uv_cache_dir": config.uv_cache_dir,
+            "venv_base": config.apptainer.venv_base if config.apptainer else "",
+        },
     }
 
 
