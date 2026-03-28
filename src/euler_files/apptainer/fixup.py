@@ -10,9 +10,7 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
-from typing import List, Optional
-
-from euler_files.apptainer.venv import list_venvs
+from typing import Any, Dict, List, Optional
 
 
 def fixup_venv(venv_path: Path, dry_run: bool = False) -> int:
@@ -75,7 +73,8 @@ def run_fixup(
     venv_name: Optional[str] = None,
     dry_run: bool = False,
     config_path: Optional[Path] = None,
-) -> None:
+    quiet: bool = False,
+) -> Dict[str, Any]:
     """Fix venv paths for one or all venvs under venv_base."""
     import os
     from euler_files.config import load_config
@@ -101,25 +100,59 @@ def run_fixup(
         fixed = fixup_venv(venv_path, dry_run=dry_run)
         if fixed:
             prefix = "[DRY-RUN] " if dry_run else ""
-            _err(f"  {prefix}[FIXUP] {venv_name}: {'would rewrite' if dry_run else 'rewrote'} {fixed} file(s)")
+            _err(
+                f"  {prefix}[FIXUP] {venv_name}: {'would rewrite' if dry_run else 'rewrote'} {fixed} file(s)",
+                quiet=quiet,
+            )
         else:
-            _err(f"  {venv_name}: paths already correct, nothing to fix")
+            _err(f"  {venv_name}: paths already correct, nothing to fix", quiet=quiet)
+        return {
+            "command": "apptainer-fixup",
+            "venv_name": venv_name,
+            "dry_run": dry_run,
+            "results": [{
+                "name": venv_name,
+                "fixed_files": fixed,
+                "status": "fixed" if fixed else "already-correct",
+            }],
+        }
     else:
         # Fix all venvs
         total = 0
+        results: List[Dict[str, Any]] = []
         for child in sorted(venv_base.iterdir()):
             if not child.is_dir() or not (child / "pyvenv.cfg").exists():
                 continue
             fixed = fixup_venv(child, dry_run=dry_run)
             if fixed:
                 prefix = "[DRY-RUN] " if dry_run else ""
-                _err(f"  {prefix}[FIXUP] {child.name}: {'would rewrite' if dry_run else 'rewrote'} {fixed} file(s)")
+                _err(
+                    f"  {prefix}[FIXUP] {child.name}: {'would rewrite' if dry_run else 'rewrote'} {fixed} file(s)",
+                    quiet=quiet,
+                )
                 total += fixed
+                results.append({
+                    "name": child.name,
+                    "fixed_files": fixed,
+                    "status": "fixed",
+                })
+            else:
+                results.append({
+                    "name": child.name,
+                    "fixed_files": 0,
+                    "status": "already-correct",
+                })
 
         if total == 0:
-            _err("  All venvs have correct paths. Nothing to fix.")
+            _err("  All venvs have correct paths. Nothing to fix.", quiet=quiet)
         else:
-            _err(f"\n  Fixed {total} file(s) total.")
+            _err(f"\n  Fixed {total} file(s) total.", quiet=quiet)
+        return {
+            "command": "apptainer-fixup",
+            "venv_name": venv_name,
+            "dry_run": dry_run,
+            "results": results,
+        }
 
 
 def _detect_old_path(activate_path: Path) -> Optional[str]:
@@ -136,6 +169,7 @@ def _detect_old_path(activate_path: Path) -> Optional[str]:
     return None
 
 
-def _err(msg: str) -> None:
+def _err(msg: str, quiet: bool = False) -> None:
     """Print to stderr."""
-    print(msg, file=sys.stderr)
+    if not quiet:
+        print(msg, file=sys.stderr)

@@ -7,7 +7,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from rich.console import Console
 from rich.prompt import Prompt
@@ -19,7 +19,7 @@ from euler_files.config import (
     save_config,
 )
 from euler_files.apptainer.deffile import generate_def_file
-from euler_files.apptainer.venv import VenvInfo, detect_python_version, list_venvs, validate_venv
+from euler_files.apptainer.venv import detect_python_version, list_venvs, validate_venv
 
 console = Console(stderr=True)
 
@@ -29,14 +29,15 @@ def run_build(
     force: bool = False,
     dry_run: bool = False,
     config_path: Optional[Path] = None,
-) -> None:
+    quiet: bool = False,
+) -> Dict[str, Any]:
     """Build an Apptainer .sif image from a uv venv."""
     config = load_config(config_path)
 
     from euler_files.congruency import check_congruency, format_warnings
     cong_warnings = check_congruency(config)
     if cong_warnings:
-        _err(format_warnings(cong_warnings))
+        _err(format_warnings(cong_warnings), quiet=quiet)
 
     if config.apptainer is None:
         raise FileNotFoundError(
@@ -50,15 +51,20 @@ def run_build(
     if venv_name is None:
         venv_name = _interactive_select(venv_base, apt)
         if venv_name is None:
-            return
+            return {
+                "command": "apptainer-build",
+                "status": "aborted",
+                "force": force,
+                "dry_run": dry_run,
+            }
 
     venv_path = venv_base / venv_name
     validate_venv(venv_path)
     python_version = detect_python_version(venv_path)
 
-    _err(f"euler-files: building apptainer image for '{venv_name}'")
-    _err(f"  venv: {venv_path}")
-    _err(f"  python: {python_version}")
+    _err(f"euler-files: building apptainer image for '{venv_name}'", quiet=quiet)
+    _err(f"  venv: {venv_path}", quiet=quiet)
+    _err(f"  python: {python_version}", quiet=quiet)
 
     # Determine output paths
     sif_store = apt.sif_store_path()
@@ -71,8 +77,19 @@ def run_build(
 
     # Check existing .sif
     if sif_path.exists() and not force:
-        _err(f"  [SKIP] {sif_path} already exists. Use --force to rebuild.")
-        return
+        _err(f"  [SKIP] {sif_path} already exists. Use --force to rebuild.", quiet=quiet)
+        return {
+            "command": "apptainer-build",
+            "venv_name": venv_name,
+            "venv_path": str(venv_path),
+            "python_version": python_version,
+            "sif_path": str(sif_path),
+            "definition_path": str(def_path),
+            "tar_path": str(tar_path),
+            "status": "skipped",
+            "force": force,
+            "dry_run": dry_run,
+        }
 
     if dry_run:
         # Generate def content with placeholder tar path for display
@@ -83,24 +100,37 @@ def run_build(
             container_venv_path=apt.container_venv_path,
             base_image_template=apt.base_image,
         )
-        _err(f"\n  [DRY-RUN] Would tar: {venv_path} -> {tar_path}")
-        _err(f"  [DRY-RUN] Would write definition file to: {def_path}")
-        _err(f"  [DRY-RUN] Would build: {sif_path}")
-        _err(f"\n  Definition file contents:")
-        _err("  " + "\n  ".join(def_content.splitlines()))
+        _err(f"\n  [DRY-RUN] Would tar: {venv_path} -> {tar_path}", quiet=quiet)
+        _err(f"  [DRY-RUN] Would write definition file to: {def_path}", quiet=quiet)
+        _err(f"  [DRY-RUN] Would build: {sif_path}", quiet=quiet)
+        _err("\n  Definition file contents:", quiet=quiet)
+        _err("  " + "\n  ".join(def_content.splitlines()), quiet=quiet)
         cmd = ["apptainer", "build", *apt.build_args, str(sif_path), str(def_path)]
-        _err(f"\n  Command: {' '.join(cmd)}")
-        return
+        _err(f"\n  Command: {' '.join(cmd)}", quiet=quiet)
+        return {
+            "command": "apptainer-build",
+            "venv_name": venv_name,
+            "venv_path": str(venv_path),
+            "python_version": python_version,
+            "sif_path": str(sif_path),
+            "definition_path": str(def_path),
+            "tar_path": str(tar_path),
+            "status": "dry-run",
+            "force": force,
+            "dry_run": dry_run,
+            "build_command": cmd,
+            "definition": def_content,
+        }
 
     # Step 1: Pre-pack the venv into a tarball
     # This is dramatically faster on shared HPC filesystems than letting
     # apptainer's %files copy thousands of individual files. tar reads
     # sequentially (one open, one stream) while %files does per-file
     # stat+open+read — tens of thousands of metadata operations.
-    _err(f"  [TAR] Packing venv into tarball...")
-    _err(f"    {venv_path} -> {tar_path}")
+    _err("  [TAR] Packing venv into tarball...", quiet=quiet)
+    _err(f"    {venv_path} -> {tar_path}", quiet=quiet)
     _create_tarball(venv_path, tar_path)
-    _err(f"  [TAR] Done ({_file_size_display(tar_path)})")
+    _err(f"  [TAR] Done ({_file_size_display(tar_path)})", quiet=quiet)
 
     try:
         # Step 2: Generate definition file (references the tarball)
@@ -112,18 +142,18 @@ def run_build(
             base_image_template=apt.base_image,
         )
         def_path.write_text(def_content)
-        _err(f"  definition: {def_path}")
+        _err(f"  definition: {def_path}", quiet=quiet)
 
         # Step 3: Build the image
         cmd = ["apptainer", "build", *apt.build_args, str(sif_path), str(def_path)]
-        _err(f"  command: {' '.join(cmd)}")
-        _err("")
+        _err(f"  command: {' '.join(cmd)}", quiet=quiet)
+        _err("", quiet=quiet)
 
         try:
             result = subprocess.run(
                 cmd,
-                stdout=sys.stderr,
-                stderr=sys.stderr,
+                stdout=subprocess.DEVNULL if quiet else sys.stderr,
+                stderr=subprocess.DEVNULL if quiet else sys.stderr,
             )
         except FileNotFoundError:
             raise FileNotFoundError(
@@ -135,7 +165,7 @@ def run_build(
     finally:
         # Step 4: Clean up the tarball (can be very large)
         if tar_path.exists():
-            _err(f"  [CLEANUP] Removing tarball {tar_path}")
+            _err(f"  [CLEANUP] Removing tarball {tar_path}", quiet=quiet)
             tar_path.unlink()
 
     # Update config with image metadata
@@ -147,9 +177,22 @@ def run_build(
     )
     save_config(config, path=config_path)
 
-    _err("")
-    _err(f"  [OK] Built {sif_path}")
-    _err("  Run 'euler-files apptainer sync' to copy to scratch.")
+    _err("", quiet=quiet)
+    _err(f"  [OK] Built {sif_path}", quiet=quiet)
+    _err("  Run 'euler-files apptainer sync' to copy to scratch.", quiet=quiet)
+    return {
+        "command": "apptainer-build",
+        "venv_name": venv_name,
+        "venv_path": str(venv_path),
+        "python_version": python_version,
+        "sif_path": str(sif_path),
+        "definition_path": str(def_path),
+        "tar_path": str(tar_path),
+        "status": "built",
+        "force": force,
+        "dry_run": dry_run,
+        "build_args": list(apt.build_args),
+    }
 
 
 def _create_tarball(venv_path: Path, tar_path: Path) -> None:
@@ -235,6 +278,7 @@ def _interactive_select(venv_base: Path, apt) -> Optional[str]:
     return None
 
 
-def _err(msg: str) -> None:
+def _err(msg: str, quiet: bool = False) -> None:
     """Print to stderr."""
-    print(msg, file=sys.stderr)
+    if not quiet:
+        print(msg, file=sys.stderr)

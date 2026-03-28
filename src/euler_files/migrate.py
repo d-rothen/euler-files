@@ -7,7 +7,7 @@ import shutil
 import sys
 import time
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from rich.console import Console
 from rich.panel import Panel
@@ -32,14 +32,20 @@ def run_migrate(
     keep_old: bool = False,
     yes: bool = False,
     config_path: Optional[Path] = None,
-) -> None:
+    quiet: bool = False,
+) -> Dict[str, Any]:
     """Migrate a cache or directory to a new location."""
     config = load_config(config_path)
 
     if what is None:
         what, to_path = _interactive_select(config)
         if what is None:
-            return
+            return {
+                "command": "migrate",
+                "status": "aborted",
+                "dry_run": dry_run,
+                "keep_old": keep_old,
+            }
 
     # Resolve what we're migrating
     target_type, old_path, config_field = _resolve_target(config, what)
@@ -57,26 +63,47 @@ def run_migrate(
         raise FileNotFoundError(f"Source path does not exist: {old_path}")
 
     # Show plan
-    _show_plan(what, str(old_path), new_path, keep_old)
+    if not quiet:
+        _show_plan(what, str(old_path), new_path, keep_old)
 
     if dry_run:
-        _err("[DRY-RUN] No changes made.")
-        return
+        _err("[DRY-RUN] No changes made.", quiet=quiet)
+        return {
+            "command": "migrate",
+            "what": what,
+            "target_type": target_type,
+            "old_path": str(old_path),
+            "new_path": new_path,
+            "status": "dry-run",
+            "dry_run": dry_run,
+            "keep_old": keep_old,
+            "deleted_old": False,
+        }
 
     # Confirm
     if not yes:
         if not Confirm.ask(
             "Proceed with migration?", default=False, console=console
         ):
-            _err("Aborted.")
-            return
+            _err("Aborted.", quiet=quiet)
+            return {
+                "command": "migrate",
+                "what": what,
+                "target_type": target_type,
+                "old_path": str(old_path),
+                "new_path": new_path,
+                "status": "aborted",
+                "dry_run": dry_run,
+                "keep_old": keep_old,
+                "deleted_old": False,
+            }
 
     # Step 1: rsync data
-    _err(f"  [RSYNC] {old_path} -> {new_path}")
+    _err(f"  [RSYNC] {old_path} -> {new_path}", quiet=quiet)
     dest = Path(new_path)
     dest.mkdir(parents=True, exist_ok=True)
     run_rsync(source=old_path, target=dest, delete=True)
-    _err("  [RSYNC] Done.")
+    _err("  [RSYNC] Done.", quiet=quiet)
 
     # Step 1b: Fix venv internal paths if migrating venv_base
     old_path_str = str(old_path)
@@ -96,9 +123,10 @@ def run_migrate(
     ))
 
     save_config(config, path=config_path)
-    _err("  [CONFIG] Updated euler-files config.")
+    _err("  [CONFIG] Updated euler-files config.", quiet=quiet)
 
     # Step 4: Optionally remove old directory
+    deleted_old = False
     if not keep_old:
         if yes or Confirm.ask(
             f"Delete old directory {old_path_str}?",
@@ -106,15 +134,28 @@ def run_migrate(
             console=console,
         ):
             shutil.rmtree(old_path_str)
-            _err(f"  [DELETE] Removed {old_path_str}")
+            _err(f"  [DELETE] Removed {old_path_str}", quiet=quiet)
+            deleted_old = True
         else:
-            _err(f"  [KEEP] Old directory kept at {old_path_str}")
+            _err(f"  [KEEP] Old directory kept at {old_path_str}", quiet=quiet)
 
     # Step 5: Print export instructions
-    _print_export_instructions(what, target_type, new_path)
+    if not quiet:
+        _print_export_instructions(what, target_type, new_path)
 
-    _err("")
-    _err("Done.")
+    _err("", quiet=quiet)
+    _err("Done.", quiet=quiet)
+    return {
+        "command": "migrate",
+        "what": what,
+        "target_type": target_type,
+        "old_path": old_path_str,
+        "new_path": new_path,
+        "status": "migrated",
+        "dry_run": dry_run,
+        "keep_old": keep_old,
+        "deleted_old": deleted_old,
+    }
 
 
 def _resolve_target(
@@ -357,6 +398,7 @@ def _fixup_venvs(new_base: Path, old_base_str: str, new_base_str: str) -> None:
             _err(f"  [FIXUP] {venv_name}: rewrote {fixed} path(s)")
 
 
-def _err(msg: str) -> None:
+def _err(msg: str, quiet: bool = False) -> None:
     """Print to stderr."""
-    print(msg, file=sys.stderr)
+    if not quiet:
+        print(msg, file=sys.stderr)

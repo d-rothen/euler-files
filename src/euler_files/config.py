@@ -6,7 +6,7 @@ import json
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 CONFIG_PATH = Path.home() / ".euler-files.json"
 CONFIG_VERSION = 1
@@ -91,6 +91,23 @@ class EulerFilesConfig:
         return Path(self.scratch_base) / self.cache_root / f".{var_name}.lock"
 
 
+def apptainer_config_from_dict(raw: Dict[str, Any]) -> ApptainerConfig:
+    """Deserialize an apptainer config section."""
+    images = {
+        k: ApptainerImageConfig(**v)
+        for k, v in raw.get("images", {}).items()
+    }
+    return ApptainerConfig(
+        venv_base=raw.get("venv_base", ""),
+        sif_store=raw.get("sif_store", ""),
+        scratch_sif_dir=raw.get("scratch_sif_dir", ""),
+        base_image=raw.get("base_image", "python:{version}-slim"),
+        container_venv_path=raw.get("container_venv_path", "/opt/venv"),
+        build_args=raw.get("build_args", ["--fakeroot"]),
+        images=images,
+    )
+
+
 def load_config(path: Optional[Path] = None) -> EulerFilesConfig:
     """Load config from JSON file."""
     p = path or CONFIG_PATH
@@ -98,7 +115,11 @@ def load_config(path: Optional[Path] = None) -> EulerFilesConfig:
         raise FileNotFoundError(f"Config not found at {p}. Run 'euler-files init' first.")
 
     raw = json.loads(p.read_text())
+    return config_from_dict(raw)
 
+
+def config_from_dict(raw: Dict[str, Any]) -> EulerFilesConfig:
+    """Deserialize a configuration mapping into dataclasses."""
     if raw.get("version", 0) != CONFIG_VERSION:
         raise ValueError(
             f"Config version mismatch. Expected {CONFIG_VERSION}, "
@@ -117,19 +138,7 @@ def load_config(path: Optional[Path] = None) -> EulerFilesConfig:
     apptainer = None
     raw_apt = raw.get("apptainer")
     if raw_apt is not None:
-        images = {
-            k: ApptainerImageConfig(**v)
-            for k, v in raw_apt.get("images", {}).items()
-        }
-        apptainer = ApptainerConfig(
-            venv_base=raw_apt.get("venv_base", ""),
-            sif_store=raw_apt.get("sif_store", ""),
-            scratch_sif_dir=raw_apt.get("scratch_sif_dir", ""),
-            base_image=raw_apt.get("base_image", "python:{version}-slim"),
-            container_venv_path=raw_apt.get("container_venv_path", "/opt/venv"),
-            build_args=raw_apt.get("build_args", ["--fakeroot"]),
-            images=images,
-        )
+        apptainer = apptainer_config_from_dict(raw_apt)
 
     # Deserialize migration records if present
     migrations = [MigrationRecord(**m) for m in raw.get("migrations", [])]
@@ -151,7 +160,13 @@ def load_config(path: Optional[Path] = None) -> EulerFilesConfig:
 def save_config(config: EulerFilesConfig, path: Optional[Path] = None) -> None:
     """Save config to JSON file."""
     p = path or CONFIG_PATH
-    raw = {
+    raw = config_to_dict(config)
+    p.write_text(json.dumps(raw, indent=2) + "\n")
+
+
+def config_to_dict(config: EulerFilesConfig) -> Dict[str, Any]:
+    """Serialize config dataclasses into a JSON-compatible dict."""
+    raw: Dict[str, Any] = {
         "version": config.version,
         "scratch_base": config.scratch_base,
         "cache_root": config.cache_root,
@@ -195,4 +210,4 @@ def save_config(config: EulerFilesConfig, path: Optional[Path] = None) -> None:
             },
         }
 
-    p.write_text(json.dumps(raw, indent=2) + "\n")
+    return raw

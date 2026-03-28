@@ -24,7 +24,7 @@ from euler_files.constants import PRESET_DESCRIPTIONS, PRESETS
 console = Console(stderr=True)
 
 
-def run_wizard() -> None:
+def run_wizard() -> Optional[EulerFilesConfig]:
     """Run the interactive setup wizard."""
     console.print()
     console.print(
@@ -47,7 +47,7 @@ def run_wizard() -> None:
         console.print(f"[yellow]Existing config found at {CONFIG_PATH}[/yellow]")
         if not Confirm.ask("Overwrite existing configuration?", default=False, console=console):
             console.print("[dim]Aborted.[/dim]")
-            return
+            return None
 
     # Step 3: Select env vars
     selected_vars = _select_vars()
@@ -77,8 +77,10 @@ def run_wizard() -> None:
         save_config(config)
         console.print(f"\n[green]Config saved to {CONFIG_PATH}[/green]")
         _show_next_steps()
+        return config
     else:
         console.print("[dim]Aborted.[/dim]")
+        return None
 
 
 def _detect_scratch() -> str:

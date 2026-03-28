@@ -211,6 +211,69 @@ The `ef` function:
 - `ef push` — reverse sync
 - Any other subcommand is passed through to `euler-files`
 
+### `euler-files venv install [ENV_NAME] [PACKAGES...]`
+
+Creates or reuses a named uv environment under the configured venv base, then
+installs packages into it.
+
+| Option          | Description                                           |
+|-----------------|-------------------------------------------------------|
+| `ENV_NAME`      | Name of the environment directory under `venv_base`   |
+| `PACKAGES...`   | Package requirements to install                       |
+| `--python PY`   | Python version/interpreter to pass to `uv venv`       |
+| `--venv-base`   | Override `apptainer.venv_base` / `$VENV_DIR`          |
+| `--dry-run`     | Show the uv commands without running them             |
+
+If a requirement includes a PyTorch CUDA wheel suffix such as
+`torch==2.4.0+cu121`, euler-files automatically adds the matching PyTorch wheel
+index, for example:
+
+```bash
+euler-files venv install my-ml-env torch==2.4.0+cu121 torchvision==0.19.0+cu121
+# internally adds:
+#   --extra-index-url https://download.pytorch.org/whl/cu121
+```
+
+## JSON mode
+
+Most operational commands also support:
+
+- `--input-json <path>` (or `-` for stdin) to read arguments/config from JSON
+- `--json` to emit machine-readable JSON instead of shell/text output
+
+This makes the CLI usable in pipelines without scraping terminal text.
+
+### Examples
+
+```bash
+# Save base config non-interactively
+cat <<'JSON' | euler-files init --input-json - --json
+{
+  "scratch_base": "$SCRATCH",
+  "vars": {
+    "HF_HOME": {"source": "/cluster/home/jdoe/.cache/huggingface"},
+    "TORCH_HOME": {"source": "/cluster/home/jdoe/.cache/torch"}
+  }
+}
+JSON
+
+# Sync and parse the exported paths as JSON
+euler-files sync --json
+
+# Install packages from a JSON request
+cat <<'JSON' | euler-files venv install --input-json - --json
+{
+  "env_name": "train-cu121",
+  "packages": [
+    "torch==2.4.0+cu121",
+    "transformers",
+    "datasets"
+  ],
+  "python": "3.11"
+}
+JSON
+```
+
 ## Apptainer support
 
 euler-files can also build and manage Apptainer (Singularity) container images
@@ -550,8 +613,7 @@ nodes where installing packages is impractical.
 # ── One-time setup ────────────────────────────────────────────────────
 
 # 1. Create a venv with uv (or python -m venv / virtualenv)
-uv venv ~/venvs/my-ml-env
-uv pip install --python ~/venvs/my-ml-env torch transformers datasets
+euler-files venv install my-ml-env torch transformers datasets
 
 # 2. Configure apptainer support (interactive wizard)
 euler-files apptainer init
@@ -592,7 +654,7 @@ apptainer shell --nv "$SIF"
 # ── Updating the environment ─────────────────────────────────────────
 
 # Install new packages into the venv
-uv pip install --python ~/venvs/my-ml-env accelerate
+euler-files venv install my-ml-env accelerate
 
 # Rebuild the image (--force overwrites the existing .sif)
 euler-files apptainer build my-ml-env --force

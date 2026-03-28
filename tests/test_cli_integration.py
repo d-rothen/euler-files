@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
@@ -9,7 +10,7 @@ import pytest
 from click.testing import CliRunner
 
 from euler_files.cli import main
-from euler_files.config import EulerFilesConfig, VarConfig, save_config
+from euler_files.config import EulerFilesConfig, VarConfig, load_config, save_config
 
 
 @pytest.fixture
@@ -43,10 +44,9 @@ def test_sync_no_config() -> None:
 
 def test_sync_with_config(cli_config: Path) -> None:
     runner = CliRunner()
-    with (
-        patch("euler_files.config.CONFIG_PATH", cli_config),
-        patch("euler_files.rsync.subprocess.run") as mock_rsync,
-    ):
+    with patch("euler_files.config.CONFIG_PATH", cli_config), patch(
+        "euler_files.rsync.subprocess.run"
+    ) as mock_rsync:
         mock_rsync.return_value = MagicMock(returncode=0)
         result = runner.invoke(main, ["sync"])
 
@@ -61,6 +61,77 @@ def test_sync_dry_run(cli_config: Path) -> None:
 
     assert result.exit_code == 0
     assert "export HF_HOME=" in result.output
+
+
+def test_sync_json_output(cli_config: Path) -> None:
+    runner = CliRunner()
+    with patch("euler_files.config.CONFIG_PATH", cli_config), patch(
+        "euler_files.rsync.subprocess.run"
+    ) as mock_rsync:
+        mock_rsync.return_value = MagicMock(returncode=0)
+        result = runner.invoke(main, ["sync", "--json"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["ok"] is True
+    assert payload["command"] == "sync"
+    assert "HF_HOME" in payload["exports"]
+
+
+def test_init_from_input_json(tmp_path: Path) -> None:
+    runner = CliRunner()
+    config_path = tmp_path / "euler-files.json"
+    payload = {
+        "scratch_base": str(tmp_path / "scratch"),
+        "vars": {
+            "HF_HOME": {
+                "source": str(tmp_path / "source"),
+            }
+        },
+    }
+
+    with patch("euler_files.config.CONFIG_PATH", config_path):
+        result = runner.invoke(
+            main,
+            ["init", "--input-json", "-", "--json"],
+            input=json.dumps(payload),
+        )
+
+    assert result.exit_code == 0
+    output = json.loads(result.output)
+    assert output["ok"] is True
+    assert output["status"] == "saved"
+    saved = load_config(path=config_path)
+    assert saved.scratch_base == str(tmp_path / "scratch")
+    assert saved.vars["HF_HOME"].source == str(tmp_path / "source")
+
+
+def test_venv_install_json_output(tmp_path: Path) -> None:
+    runner = CliRunner()
+    venv_dir = tmp_path / "venvs"
+
+    with patch.dict("os.environ", {"VENV_DIR": str(venv_dir)}, clear=False), patch(
+        "euler_files.uv_env.shutil.which", return_value="/usr/bin/uv"
+    ), patch(
+        "euler_files.uv_env.subprocess.run", return_value=MagicMock(returncode=0)
+    ):
+        result = runner.invoke(
+            main,
+            [
+                "venv",
+                "install",
+                "ml-env",
+                "torch==2.4.0+cu121",
+                "transformers",
+                "--json",
+            ],
+        )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["ok"] is True
+    assert payload["env_name"] == "ml-env"
+    assert payload["extra_index_urls"] == ["https://download.pytorch.org/whl/cu121"]
 
 
 def test_shell_init_bash() -> None:

@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from rich.console import Console
 from rich.prompt import Confirm, Prompt
@@ -30,7 +30,8 @@ def run_prune(
     dry_run: bool = False,
     yes: bool = False,
     config_path: Optional[Path] = None,
-) -> None:
+    quiet: bool = False,
+) -> Dict[str, Any]:
     """Prune venvs, .sif images, or both."""
     config = load_config(config_path)
 
@@ -48,13 +49,24 @@ def run_prune(
     if image_name is None:
         image_name = _interactive_select(apt, venv_base, sif_store)
         if image_name is None:
-            return
+            return {
+                "command": "apptainer-prune",
+                "status": "aborted",
+                "dry_run": dry_run,
+                "yes": yes,
+            }
 
     # Select prune mode
     if mode is None:
         mode = _interactive_mode(image_name, venv_base, sif_store)
         if mode is None:
-            return
+            return {
+                "command": "apptainer-prune",
+                "image_name": image_name,
+                "status": "aborted",
+                "dry_run": dry_run,
+                "yes": yes,
+            }
 
     # Resolve what exists
     venv_path = venv_base / image_name
@@ -70,14 +82,14 @@ def run_prune(
             size = _get_size_display(venv_path)
             targets.append(("venv", venv_path, size))
         else:
-            _err(f"  [SKIP] Venv not found: {venv_path}")
+            _err(f"  [SKIP] Venv not found: {venv_path}", quiet=quiet)
 
     if mode in (PruneMode.BOTH, PruneMode.SIF_ONLY):
         if sif_path.exists():
             size = _file_size_display(sif_path)
             targets.append(("sif", sif_path, size))
         else:
-            _err(f"  [SKIP] SIF not found: {sif_path}")
+            _err(f"  [SKIP] SIF not found: {sif_path}", quiet=quiet)
 
         if def_path.exists():
             targets.append(("def", def_path, _file_size_display(def_path)))
@@ -87,25 +99,42 @@ def run_prune(
             targets.append(("scratch sif", scratch_sif_file, size))
 
     if not targets:
-        _err("Nothing to prune.")
-        return
+        _err("Nothing to prune.", quiet=quiet)
+        return {
+            "command": "apptainer-prune",
+            "image_name": image_name,
+            "mode": mode,
+            "status": "nothing-to-prune",
+            "dry_run": dry_run,
+            "yes": yes,
+            "targets": [],
+        }
 
     # Display summary
-    console.print()
-    table = Table(title=f"Prune '{image_name}'", border_style="red")
-    table.add_column("Type", style="bold")
-    table.add_column("Path")
-    table.add_column("Size", justify="right")
+    if not quiet:
+        console.print()
+        table = Table(title=f"Prune '{image_name}'", border_style="red")
+        table.add_column("Type", style="bold")
+        table.add_column("Path")
+        table.add_column("Size", justify="right")
 
-    for kind, path, size in targets:
-        table.add_row(kind, str(path), size)
+        for kind, path, size in targets:
+            table.add_row(kind, str(path), size)
 
-    console.print(table)
-    console.print()
+        console.print(table)
+        console.print()
 
     if dry_run:
-        _err("[DRY-RUN] Would delete the above. Nothing was removed.")
-        return
+        _err("[DRY-RUN] Would delete the above. Nothing was removed.", quiet=quiet)
+        return {
+            "command": "apptainer-prune",
+            "image_name": image_name,
+            "mode": mode,
+            "status": "dry-run",
+            "dry_run": dry_run,
+            "yes": yes,
+            "targets": _serialize_targets(targets),
+        }
 
     # Confirm
     if not yes:
@@ -114,30 +143,51 @@ def run_prune(
             default=False,
             console=console,
         ):
-            _err("Aborted.")
-            return
+            _err("Aborted.", quiet=quiet)
+            return {
+                "command": "apptainer-prune",
+                "image_name": image_name,
+                "mode": mode,
+                "status": "aborted",
+                "dry_run": dry_run,
+                "yes": yes,
+                "targets": _serialize_targets(targets),
+            }
 
     # Execute deletions
+    deleted: List[Dict[str, str]] = []
     for kind, path, size in targets:
         try:
             if path.is_dir():
                 shutil.rmtree(path)
-                _err(f"  [DELETED] {kind}: {path}")
+                _err(f"  [DELETED] {kind}: {path}", quiet=quiet)
+                deleted.append({"kind": kind, "path": str(path), "size": size})
             elif path.is_file():
                 path.unlink()
-                _err(f"  [DELETED] {kind}: {path}")
+                _err(f"  [DELETED] {kind}: {path}", quiet=quiet)
+                deleted.append({"kind": kind, "path": str(path), "size": size})
         except OSError as exc:
-            _err(f"  [ERROR] Failed to delete {path}: {exc}")
+            _err(f"  [ERROR] Failed to delete {path}: {exc}", quiet=quiet)
 
     # Update config: remove image entry if sif was deleted
     if mode in (PruneMode.BOTH, PruneMode.SIF_ONLY):
         if image_name in apt.images:
             del apt.images[image_name]
             save_config(config, path=config_path)
-            _err(f"  [CONFIG] Removed '{image_name}' from config")
+            _err(f"  [CONFIG] Removed '{image_name}' from config", quiet=quiet)
 
-    _err("")
-    _err("Done.")
+    _err("", quiet=quiet)
+    _err("Done.", quiet=quiet)
+    return {
+        "command": "apptainer-prune",
+        "image_name": image_name,
+        "mode": mode,
+        "status": "pruned",
+        "dry_run": dry_run,
+        "yes": yes,
+        "targets": _serialize_targets(targets),
+        "deleted": deleted,
+    }
 
 
 def _interactive_select(apt, venv_base: Path, sif_store: Path) -> Optional[str]:
@@ -275,6 +325,15 @@ def _file_size_display(path: Path) -> str:
     return "?"
 
 
-def _err(msg: str) -> None:
+def _serialize_targets(targets: List[tuple[str, Path, str]]) -> List[Dict[str, str]]:
+    """Convert prune targets into JSON-friendly dicts."""
+    return [
+        {"kind": kind, "path": str(path), "size": size}
+        for kind, path, size in targets
+    ]
+
+
+def _err(msg: str, quiet: bool = False) -> None:
     """Print to stderr."""
-    print(msg, file=sys.stderr)
+    if not quiet:
+        print(msg, file=sys.stderr)

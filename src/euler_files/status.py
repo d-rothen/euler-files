@@ -6,6 +6,7 @@ import json
 import subprocess
 import time
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from rich.console import Console
 from rich.table import Table
@@ -15,22 +16,17 @@ from euler_files.config import load_config
 console = Console()
 
 
-def show_status() -> None:
-    """Display sync status for all managed variables."""
-    config = load_config()
+def collect_status(config_path: Optional[Path] = None) -> Dict[str, Any]:
+    """Collect sync status for all managed variables."""
+    config = load_config(config_path)
 
     from euler_files.congruency import check_congruency, format_warnings
     cong_warnings = check_congruency(config)
+    warnings: List[str] = []
     if cong_warnings:
-        console.print(f"[yellow]{format_warnings(cong_warnings)}[/yellow]")
+        warnings.append(format_warnings(cong_warnings))
 
-    table = Table(title="euler-files status", border_style="blue")
-    table.add_column("Variable", style="bold")
-    table.add_column("Source Size", justify="right")
-    table.add_column("Scratch Size", justify="right")
-    table.add_column("Last Synced", justify="right")
-    table.add_column("Status")
-
+    variables = []
     for name, vc in config.vars.items():
         if not vc.enabled:
             continue
@@ -57,23 +53,72 @@ def show_status() -> None:
                 last_synced = "corrupt"
 
         # Status
-        if not source_path.exists():
-            status_str = "[yellow]source missing[/yellow]"
-        elif not scratch_path.exists():
-            status_str = "[red]not synced[/red]"
-        elif stale:
-            status_str = "[yellow]stale[/yellow]"
+        if stale:
+            status = "stale"
         else:
-            status_str = "[green]fresh[/green]"
+            status = "fresh"
 
-        table.add_row(name, source_size, scratch_size, last_synced, status_str)
+        if not source_path.exists():
+            status = "source-missing"
+        elif not scratch_path.exists():
+            status = "not-synced"
 
-    console.print(table)
+        variables.append({
+            "name": name,
+            "source": str(source_path),
+            "scratch": str(scratch_path),
+            "source_size": source_size,
+            "scratch_size": scratch_size,
+            "last_synced": last_synced,
+            "status": status,
+        })
 
     # Summary
     scratch_base = Path(config.scratch_base) / config.cache_root
     total = _get_size(scratch_base)
-    console.print(f"\nTotal scratch usage: [bold]{total}[/bold]")
+
+    return {
+        "command": "status",
+        "warnings": warnings,
+        "variables": variables,
+        "total_scratch_usage": total,
+    }
+
+
+def show_status(config_path: Optional[Path] = None) -> Dict[str, Any]:
+    """Display sync status for all managed variables."""
+    data = collect_status(config_path=config_path)
+    if data["warnings"]:
+        for warning in data["warnings"]:
+            console.print(f"[yellow]{warning}[/yellow]")
+
+    table = Table(title="euler-files status", border_style="blue")
+    table.add_column("Variable", style="bold")
+    table.add_column("Source Size", justify="right")
+    table.add_column("Scratch Size", justify="right")
+    table.add_column("Last Synced", justify="right")
+    table.add_column("Status")
+
+    for item in data["variables"]:
+        status = item["status"]
+        if status == "fresh":
+            status_str = "[green]fresh[/green]"
+        elif status in ("stale", "source-missing"):
+            status_str = f"[yellow]{status.replace('-', ' ')}[/yellow]"
+        else:
+            status_str = f"[red]{status.replace('-', ' ')}[/red]"
+
+        table.add_row(
+            item["name"],
+            item["source_size"],
+            item["scratch_size"],
+            item["last_synced"],
+            status_str,
+        )
+
+    console.print(table)
+    console.print(f"\nTotal scratch usage: [bold]{data['total_scratch_usage']}[/bold]")
+    return data
 
 
 def _get_size(path: Path) -> str:

@@ -25,7 +25,7 @@ from euler_files.apptainer.venv import list_venvs
 console = Console(stderr=True)
 
 
-def run_apptainer_wizard() -> None:
+def run_apptainer_wizard() -> Optional[ApptainerConfig]:
     """Run the interactive apptainer setup wizard."""
     console.print()
     console.print(
@@ -42,7 +42,7 @@ def run_apptainer_wizard() -> None:
     # Step 1: Load existing config (need scratch_base)
     config = _load_existing_config()
     if config is None:
-        return
+        return None
 
     # Step 2: Check apptainer availability
     _check_apptainer()
@@ -52,7 +52,7 @@ def run_apptainer_wizard() -> None:
         console.print("[yellow]Existing apptainer config found.[/yellow]")
         if not Confirm.ask("Overwrite apptainer configuration?", default=False, console=console):
             console.print("[dim]Aborted.[/dim]")
-            return
+            return None
 
     # Step 4: Configure venv base directory
     venv_base = _configure_venv_base()
@@ -87,8 +87,10 @@ def run_apptainer_wizard() -> None:
         save_config(config)
         console.print(f"\n[green]Apptainer config saved to {CONFIG_PATH}[/green]")
         _show_next_steps()
+        return apptainer_config
     else:
         console.print("[dim]Aborted.[/dim]")
+        return None
 
 
 def _load_existing_config() -> Optional[EulerFilesConfig]:
