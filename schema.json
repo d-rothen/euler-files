@@ -1,0 +1,2497 @@
+{
+  "cli": {
+    "chain": false,
+    "commands": {
+      "apptainer": {
+        "chain": false,
+        "commands": {
+          "build": {
+            "deprecated": false,
+            "epilog": null,
+            "help": "Build an Apptainer .sif image from a uv venv.",
+            "hidden": false,
+            "name": "build",
+            "params": [
+              {
+                "default": null,
+                "envvar": null,
+                "multiple": false,
+                "name": "venv_name",
+                "nargs": 1,
+                "opts": [
+                  "venv_name"
+                ],
+                "param_type_name": "argument",
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Rebuild even if .sif already exists.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "force",
+                "nargs": 1,
+                "opts": [
+                  "--force"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show what would be done without building.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "dry_run",
+                "nargs": 1,
+                "opts": [
+                  "--dry-run"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Read command arguments from JSON file or '-' for stdin.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "input_json",
+                "nargs": 1,
+                "opts": [
+                  "--input-json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Emit machine-readable JSON.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "json_output",
+                "nargs": 1,
+                "opts": [
+                  "--json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show this message and exit.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "help",
+                "nargs": 1,
+                "opts": [
+                  "--help"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              }
+            ],
+            "short_help": null
+          },
+          "fixup": {
+            "deprecated": false,
+            "epilog": null,
+            "help": "Fix venv internal paths after moving venv_base.\n\nRewrites bin/activate and shebangs to match the venv's actual location.\nFixes one venv if VENV_NAME is given, otherwise fixes all.\n",
+            "hidden": false,
+            "name": "fixup",
+            "params": [
+              {
+                "default": null,
+                "envvar": null,
+                "multiple": false,
+                "name": "venv_name",
+                "nargs": 1,
+                "opts": [
+                  "venv_name"
+                ],
+                "param_type_name": "argument",
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show what would be fixed without changing files.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "dry_run",
+                "nargs": 1,
+                "opts": [
+                  "--dry-run"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Read command arguments from JSON file or '-' for stdin.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "input_json",
+                "nargs": 1,
+                "opts": [
+                  "--input-json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Emit machine-readable JSON.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "json_output",
+                "nargs": 1,
+                "opts": [
+                  "--json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show this message and exit.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "help",
+                "nargs": 1,
+                "opts": [
+                  "--help"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              }
+            ],
+            "short_help": null
+          },
+          "init": {
+            "deprecated": false,
+            "epilog": null,
+            "help": "Interactive setup for apptainer image management.",
+            "hidden": false,
+            "name": "init",
+            "params": [
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Read config from JSON file or '-' for stdin.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "input_json",
+                "nargs": 1,
+                "opts": [
+                  "--input-json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Emit machine-readable JSON.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "json_output",
+                "nargs": 1,
+                "opts": [
+                  "--json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show this message and exit.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "help",
+                "nargs": 1,
+                "opts": [
+                  "--help"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              }
+            ],
+            "short_help": null
+          },
+          "prune": {
+            "deprecated": false,
+            "epilog": null,
+            "help": "Remove venvs, .sif images, or both.",
+            "hidden": false,
+            "name": "prune",
+            "params": [
+              {
+                "default": null,
+                "envvar": null,
+                "multiple": false,
+                "name": "image_name",
+                "nargs": 1,
+                "opts": [
+                  "image_name"
+                ],
+                "param_type_name": "argument",
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "What to remove: both, venv only, or sif only.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "mode",
+                "nargs": 1,
+                "opts": [
+                  "--mode"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "case_sensitive": true,
+                  "choices": [
+                    "both",
+                    "venv",
+                    "sif"
+                  ],
+                  "name": "choice",
+                  "param_type": "Choice"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show what would be deleted.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "dry_run",
+                "nargs": 1,
+                "opts": [
+                  "--dry-run"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Skip confirmation prompt.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "yes",
+                "nargs": 1,
+                "opts": [
+                  "--yes",
+                  "-y"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Read command arguments from JSON file or '-' for stdin.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "input_json",
+                "nargs": 1,
+                "opts": [
+                  "--input-json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Emit machine-readable JSON.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "json_output",
+                "nargs": 1,
+                "opts": [
+                  "--json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show this message and exit.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "help",
+                "nargs": 1,
+                "opts": [
+                  "--help"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              }
+            ],
+            "short_help": null
+          },
+          "sync": {
+            "deprecated": false,
+            "epilog": null,
+            "help": "Sync .sif images to scratch.",
+            "hidden": false,
+            "name": "sync",
+            "params": [
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show what would be synced.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "dry_run",
+                "nargs": 1,
+                "opts": [
+                  "--dry-run"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Ignore freshness checks.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "force",
+                "nargs": 1,
+                "opts": [
+                  "--force"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Sync only specific image(s). Can be repeated.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": true,
+                "name": "image",
+                "nargs": 1,
+                "opts": [
+                  "--image"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Read command arguments from JSON file or '-' for stdin.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "input_json",
+                "nargs": 1,
+                "opts": [
+                  "--input-json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Emit machine-readable JSON.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "json_output",
+                "nargs": 1,
+                "opts": [
+                  "--json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show this message and exit.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "help",
+                "nargs": 1,
+                "opts": [
+                  "--help"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              }
+            ],
+            "short_help": null
+          }
+        },
+        "deprecated": false,
+        "epilog": null,
+        "help": "Manage Apptainer images from Python venvs.",
+        "hidden": false,
+        "name": "apptainer",
+        "params": [
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Show this message and exit.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "help",
+            "nargs": 1,
+            "opts": [
+              "--help"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          }
+        ],
+        "short_help": null
+      },
+      "init": {
+        "deprecated": false,
+        "epilog": null,
+        "help": "Interactive setup wizard.",
+        "hidden": false,
+        "name": "init",
+        "params": [
+          {
+            "count": false,
+            "default": null,
+            "envvar": null,
+            "flag_value": null,
+            "help": "Read config from JSON file or '-' for stdin.",
+            "hidden": false,
+            "is_flag": false,
+            "multiple": false,
+            "name": "input_json",
+            "nargs": 1,
+            "opts": [
+              "--input-json"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "text",
+              "param_type": "String"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Emit machine-readable JSON.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "json_output",
+            "nargs": 1,
+            "opts": [
+              "--json"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Show this message and exit.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "help",
+            "nargs": 1,
+            "opts": [
+              "--help"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          }
+        ],
+        "short_help": null
+      },
+      "migrate": {
+        "deprecated": false,
+        "epilog": null,
+        "help": "Migrate a cache or directory to a new location.\n\nWHAT is a variable name (e.g. HF_HOME) or config field (e.g. venv_base, sif_store).\nIf omitted, runs an interactive wizard.\n",
+        "hidden": false,
+        "name": "migrate",
+        "params": [
+          {
+            "default": null,
+            "envvar": null,
+            "multiple": false,
+            "name": "what",
+            "nargs": 1,
+            "opts": [
+              "what"
+            ],
+            "param_type_name": "argument",
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "text",
+              "param_type": "String"
+            }
+          },
+          {
+            "count": false,
+            "default": null,
+            "envvar": null,
+            "flag_value": null,
+            "help": "New location.",
+            "hidden": false,
+            "is_flag": false,
+            "multiple": false,
+            "name": "to_path",
+            "nargs": 1,
+            "opts": [
+              "--to"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "text",
+              "param_type": "String"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Show what would be done.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "dry_run",
+            "nargs": 1,
+            "opts": [
+              "--dry-run"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Keep old directory after migration.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "no_delete",
+            "nargs": 1,
+            "opts": [
+              "--no-delete"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Skip confirmation prompt.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "yes",
+            "nargs": 1,
+            "opts": [
+              "--yes",
+              "-y"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          },
+          {
+            "count": false,
+            "default": null,
+            "envvar": null,
+            "flag_value": null,
+            "help": "Read command arguments from JSON file or '-' for stdin.",
+            "hidden": false,
+            "is_flag": false,
+            "multiple": false,
+            "name": "input_json",
+            "nargs": 1,
+            "opts": [
+              "--input-json"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "text",
+              "param_type": "String"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Emit machine-readable JSON.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "json_output",
+            "nargs": 1,
+            "opts": [
+              "--json"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Show this message and exit.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "help",
+            "nargs": 1,
+            "opts": [
+              "--help"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          }
+        ],
+        "short_help": null
+      },
+      "push": {
+        "deprecated": false,
+        "epilog": null,
+        "help": "Reverse sync: copy scratch caches back to persistent storage.",
+        "hidden": false,
+        "name": "push",
+        "params": [
+          {
+            "count": false,
+            "default": null,
+            "envvar": null,
+            "flag_value": null,
+            "help": "Push only specific var(s).",
+            "hidden": false,
+            "is_flag": false,
+            "multiple": true,
+            "name": "var",
+            "nargs": 1,
+            "opts": [
+              "--var"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "text",
+              "param_type": "String"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Show what would be pushed.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "dry_run",
+            "nargs": 1,
+            "opts": [
+              "--dry-run"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          },
+          {
+            "count": false,
+            "default": null,
+            "envvar": null,
+            "flag_value": null,
+            "help": "Read command arguments from JSON file or '-' for stdin.",
+            "hidden": false,
+            "is_flag": false,
+            "multiple": false,
+            "name": "input_json",
+            "nargs": 1,
+            "opts": [
+              "--input-json"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "text",
+              "param_type": "String"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Emit machine-readable JSON.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "json_output",
+            "nargs": 1,
+            "opts": [
+              "--json"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Show this message and exit.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "help",
+            "nargs": 1,
+            "opts": [
+              "--help"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          }
+        ],
+        "short_help": null
+      },
+      "schema": {
+        "deprecated": false,
+        "epilog": null,
+        "help": "Emit machine-readable schemas for CLI invocation and --input-json payloads.",
+        "hidden": false,
+        "name": "schema",
+        "params": [
+          {
+            "count": false,
+            "default": "all",
+            "envvar": null,
+            "flag_value": null,
+            "help": "Which schema set to emit.",
+            "hidden": false,
+            "is_flag": false,
+            "multiple": false,
+            "name": "kind",
+            "nargs": 1,
+            "opts": [
+              "--kind"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "case_sensitive": true,
+              "choices": [
+                "all",
+                "cli",
+                "input"
+              ],
+              "name": "choice",
+              "param_type": "Choice"
+            }
+          },
+          {
+            "count": false,
+            "default": null,
+            "envvar": null,
+            "flag_value": null,
+            "help": "Optional dotted command path, for example 'sync' or 'apptainer.build'.",
+            "hidden": false,
+            "is_flag": false,
+            "multiple": false,
+            "name": "command_path",
+            "nargs": 1,
+            "opts": [
+              "--command"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "text",
+              "param_type": "String"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Show this message and exit.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "help",
+            "nargs": 1,
+            "opts": [
+              "--help"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          }
+        ],
+        "short_help": null
+      },
+      "shell-init": {
+        "deprecated": false,
+        "epilog": null,
+        "help": "Output shell function for easier usage.\n\nAdd to .bashrc: eval \"$(euler-files shell-init)\"\n",
+        "hidden": false,
+        "name": "shell-init",
+        "params": [
+          {
+            "count": false,
+            "default": null,
+            "envvar": null,
+            "flag_value": null,
+            "help": "Shell type for the generated function.",
+            "hidden": false,
+            "is_flag": false,
+            "multiple": false,
+            "name": "shell",
+            "nargs": 1,
+            "opts": [
+              "--shell"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "case_sensitive": true,
+              "choices": [
+                "bash",
+                "zsh",
+                "fish"
+              ],
+              "name": "choice",
+              "param_type": "Choice"
+            }
+          },
+          {
+            "count": false,
+            "default": null,
+            "envvar": null,
+            "flag_value": null,
+            "help": "Read command arguments from JSON file or '-' for stdin.",
+            "hidden": false,
+            "is_flag": false,
+            "multiple": false,
+            "name": "input_json",
+            "nargs": 1,
+            "opts": [
+              "--input-json"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "text",
+              "param_type": "String"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Emit machine-readable JSON.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "json_output",
+            "nargs": 1,
+            "opts": [
+              "--json"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Show this message and exit.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "help",
+            "nargs": 1,
+            "opts": [
+              "--help"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          }
+        ],
+        "short_help": null
+      },
+      "status": {
+        "deprecated": false,
+        "epilog": null,
+        "help": "Show sync status, sizes, and staleness of managed caches.",
+        "hidden": false,
+        "name": "status",
+        "params": [
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Emit machine-readable JSON.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "json_output",
+            "nargs": 1,
+            "opts": [
+              "--json"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Show this message and exit.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "help",
+            "nargs": 1,
+            "opts": [
+              "--help"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          }
+        ],
+        "short_help": null
+      },
+      "sync": {
+        "deprecated": false,
+        "epilog": null,
+        "help": "Sync caches to scratch. Usage: eval $(euler-files sync)",
+        "hidden": false,
+        "name": "sync",
+        "params": [
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Show what would be synced without doing it.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "dry_run",
+            "nargs": 1,
+            "opts": [
+              "--dry-run"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Ignore smart-skip markers and force rsync.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "force",
+            "nargs": 1,
+            "opts": [
+              "--force"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          },
+          {
+            "count": false,
+            "default": null,
+            "envvar": null,
+            "flag_value": null,
+            "help": "Sync only specific var(s). Can be repeated.",
+            "hidden": false,
+            "is_flag": false,
+            "multiple": true,
+            "name": "var",
+            "nargs": 1,
+            "opts": [
+              "--var"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "text",
+              "param_type": "String"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Show rsync details on stderr.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "verbose",
+            "nargs": 1,
+            "opts": [
+              "--verbose",
+              "-v"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          },
+          {
+            "count": false,
+            "default": null,
+            "envvar": null,
+            "flag_value": null,
+            "help": "Read command arguments from JSON file or '-' for stdin.",
+            "hidden": false,
+            "is_flag": false,
+            "multiple": false,
+            "name": "input_json",
+            "nargs": 1,
+            "opts": [
+              "--input-json"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "text",
+              "param_type": "String"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Emit machine-readable JSON.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "json_output",
+            "nargs": 1,
+            "opts": [
+              "--json"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          },
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Show this message and exit.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "help",
+            "nargs": 1,
+            "opts": [
+              "--help"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          }
+        ],
+        "short_help": null
+      },
+      "venv": {
+        "chain": false,
+        "commands": {
+          "install": {
+            "deprecated": false,
+            "epilog": null,
+            "help": "Create or reuse a named uv environment and install packages into it.",
+            "hidden": false,
+            "name": "install",
+            "params": [
+              {
+                "default": null,
+                "envvar": null,
+                "multiple": false,
+                "name": "env_name",
+                "nargs": 1,
+                "opts": [
+                  "env_name"
+                ],
+                "param_type_name": "argument",
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "default": null,
+                "envvar": null,
+                "multiple": false,
+                "name": "packages",
+                "nargs": -1,
+                "opts": [
+                  "packages"
+                ],
+                "param_type_name": "argument",
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Python version or interpreter for uv venv.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "python_version",
+                "nargs": 1,
+                "opts": [
+                  "--python"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Override the configured venv base directory.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "venv_base",
+                "nargs": 1,
+                "opts": [
+                  "--venv-base"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show the uv commands without running them.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "dry_run",
+                "nargs": 1,
+                "opts": [
+                  "--dry-run"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Read command arguments from JSON file or '-' for stdin.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "input_json",
+                "nargs": 1,
+                "opts": [
+                  "--input-json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Emit machine-readable JSON.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "json_output",
+                "nargs": 1,
+                "opts": [
+                  "--json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show this message and exit.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "help",
+                "nargs": 1,
+                "opts": [
+                  "--help"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              }
+            ],
+            "short_help": null
+          }
+        },
+        "deprecated": false,
+        "epilog": null,
+        "help": "Manage uv environments under the configured venv base.",
+        "hidden": false,
+        "name": "venv",
+        "params": [
+          {
+            "count": false,
+            "default": false,
+            "envvar": null,
+            "flag_value": true,
+            "help": "Show this message and exit.",
+            "hidden": false,
+            "is_flag": true,
+            "multiple": false,
+            "name": "help",
+            "nargs": 1,
+            "opts": [
+              "--help"
+            ],
+            "param_type_name": "option",
+            "prompt": null,
+            "required": false,
+            "secondary_opts": [],
+            "type": {
+              "name": "boolean",
+              "param_type": "Bool"
+            }
+          }
+        ],
+        "short_help": null
+      }
+    },
+    "deprecated": false,
+    "epilog": null,
+    "help": "euler-files: Manage env-var caches on HPC clusters.",
+    "hidden": false,
+    "name": "euler-files",
+    "params": [
+      {
+        "count": false,
+        "default": false,
+        "envvar": null,
+        "flag_value": true,
+        "help": "Show the version and exit.",
+        "hidden": false,
+        "is_flag": true,
+        "multiple": false,
+        "name": "version",
+        "nargs": 1,
+        "opts": [
+          "--version"
+        ],
+        "param_type_name": "option",
+        "prompt": null,
+        "required": false,
+        "secondary_opts": [],
+        "type": {
+          "name": "boolean",
+          "param_type": "Bool"
+        }
+      },
+      {
+        "count": false,
+        "default": false,
+        "envvar": null,
+        "flag_value": true,
+        "help": "Show this message and exit.",
+        "hidden": false,
+        "is_flag": true,
+        "multiple": false,
+        "name": "help",
+        "nargs": 1,
+        "opts": [
+          "--help"
+        ],
+        "param_type_name": "option",
+        "prompt": null,
+        "required": false,
+        "secondary_opts": [],
+        "type": {
+          "name": "boolean",
+          "param_type": "Bool"
+        }
+      }
+    ],
+    "short_help": null
+  },
+  "command": "schema",
+  "input_json": {
+    "apptainer.build": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Optional arguments for building an Apptainer image.",
+      "properties": {
+        "dry_run": {
+          "description": "Equivalent to '--dry-run'.",
+          "type": "boolean"
+        },
+        "force": {
+          "description": "Equivalent to '--force'.",
+          "type": "boolean"
+        },
+        "venv_name": {
+          "description": "Name of the venv to build.",
+          "type": "string"
+        }
+      },
+      "title": "euler-files apptainer build --input-json payload",
+      "type": "object"
+    },
+    "apptainer.fixup": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Optional arguments for fixing venv internal paths.",
+      "properties": {
+        "dry_run": {
+          "description": "Equivalent to '--dry-run'.",
+          "type": "boolean"
+        },
+        "venv_name": {
+          "description": "Fix only this venv; omit to process all venvs.",
+          "type": "string"
+        }
+      },
+      "title": "euler-files apptainer fixup --input-json payload",
+      "type": "object"
+    },
+    "apptainer.init": {
+      "$defs": {
+        "ApptainerConfig": {
+          "additionalProperties": false,
+          "description": "Apptainer-related configuration.",
+          "properties": {
+            "base_image": {
+              "description": "Apptainer base image template.",
+              "type": "string"
+            },
+            "build_args": {
+              "description": "Extra arguments passed to 'apptainer build'.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "container_venv_path": {
+              "description": "Canonical venv path inside the container.",
+              "type": "string"
+            },
+            "images": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ApptainerImageConfig"
+              },
+              "description": "Known image metadata keyed by environment name.",
+              "type": "object"
+            },
+            "scratch_sif_dir": {
+              "description": "Scratch destination for synced .sif files.",
+              "type": "string"
+            },
+            "sif_store": {
+              "description": "Persistent storage directory for built .sif files.",
+              "type": "string"
+            },
+            "venv_base": {
+              "description": "Directory containing the managed Python environments.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "venv_base",
+            "sif_store",
+            "scratch_sif_dir"
+          ],
+          "type": "object"
+        },
+        "ApptainerImageConfig": {
+          "additionalProperties": false,
+          "description": "Stored metadata for one Apptainer image.",
+          "properties": {
+            "built_at": {
+              "description": "Unix timestamp of the most recent build.",
+              "type": "number"
+            },
+            "enabled": {
+              "description": "Whether the image is enabled for sync.",
+              "type": "boolean"
+            },
+            "python_version": {
+              "description": "Full Python version string, for example '3.11.5'.",
+              "type": "string"
+            },
+            "sif_filename": {
+              "description": "Filename of the built .sif image.",
+              "type": "string"
+            },
+            "venv_name": {
+              "description": "Name of the source venv under venv_base.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "venv_name",
+            "python_version",
+            "sif_filename"
+          ],
+          "type": "object"
+        },
+        "EulerFilesConfig": {
+          "additionalProperties": false,
+          "description": "Top-level euler-files configuration document.",
+          "properties": {
+            "apptainer": {
+              "$ref": "#/$defs/ApptainerConfig"
+            },
+            "cache_root": {
+              "description": "Relative path under scratch_base where euler-files stores caches.",
+              "type": "string"
+            },
+            "lock_timeout_seconds": {
+              "description": "Per-variable flock timeout in seconds.",
+              "type": "integer"
+            },
+            "migrations": {
+              "description": "Migration history entries.",
+              "items": {
+                "$ref": "#/$defs/MigrationRecord"
+              },
+              "type": "array"
+            },
+            "parallel_jobs": {
+              "description": "Number of concurrent sync jobs.",
+              "type": "integer"
+            },
+            "rsync_extra_args": {
+              "description": "Extra arguments passed to rsync.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "scratch_base": {
+              "description": "Base scratch directory used for cache sync targets.",
+              "type": "string"
+            },
+            "skip_if_fresh_seconds": {
+              "description": "Marker freshness threshold in seconds.",
+              "type": "integer"
+            },
+            "vars": {
+              "additionalProperties": {
+                "$ref": "#/$defs/VarConfig"
+              },
+              "description": "Managed variables keyed by environment variable name.",
+              "type": "object"
+            },
+            "version": {
+              "description": "Config file version.",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "scratch_base",
+            "vars"
+          ],
+          "type": "object"
+        },
+        "MigrationRecord": {
+          "additionalProperties": false,
+          "description": "Recorded migration entry.",
+          "properties": {
+            "field_name": {
+              "description": "Config field that changed.",
+              "type": "string"
+            },
+            "migrated_at": {
+              "description": "Unix timestamp when the migration was recorded.",
+              "type": "number"
+            },
+            "new_path": {
+              "description": "Destination absolute path.",
+              "type": "string"
+            },
+            "old_path": {
+              "description": "Original absolute path.",
+              "type": "string"
+            },
+            "var_name": {
+              "description": "Environment variable name for variable migrations.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "old_path",
+            "new_path",
+            "migrated_at",
+            "field_name"
+          ],
+          "type": "object"
+        },
+        "VarConfig": {
+          "additionalProperties": false,
+          "description": "Configuration for one managed environment variable.",
+          "properties": {
+            "enabled": {
+              "description": "Whether the managed variable is enabled.",
+              "type": "boolean"
+            },
+            "source": {
+              "description": "Absolute path to the persistent source directory.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "source"
+          ],
+          "type": "object"
+        }
+      },
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "description": "Either a raw apptainer config object or an object wrapping it under 'apptainer'.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ApptainerConfig"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Wrapper object containing the apptainer config under 'apptainer'.",
+          "properties": {
+            "apptainer": {
+              "$ref": "#/$defs/ApptainerConfig"
+            }
+          },
+          "required": [
+            "apptainer"
+          ],
+          "type": "object"
+        }
+      ],
+      "title": "euler-files apptainer init --input-json payload"
+    },
+    "apptainer.prune": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Optional arguments for pruning venvs and/or images.",
+      "properties": {
+        "dry_run": {
+          "description": "Equivalent to '--dry-run'.",
+          "type": "boolean"
+        },
+        "image_name": {
+          "description": "Name of the environment/image to prune.",
+          "type": "string"
+        },
+        "mode": {
+          "description": "What to remove.",
+          "enum": [
+            "both",
+            "venv",
+            "sif"
+          ],
+          "type": "string"
+        },
+        "venv_name": {
+          "description": "Accepted alias for the image/environment name. Accepted as an alias for 'image_name'.",
+          "type": "string"
+        },
+        "yes": {
+          "description": "Equivalent to '--yes'.",
+          "type": "boolean"
+        }
+      },
+      "title": "euler-files apptainer prune --input-json payload",
+      "type": "object"
+    },
+    "apptainer.sync": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Optional arguments for syncing .sif images to scratch.",
+      "properties": {
+        "dry_run": {
+          "description": "Equivalent to '--dry-run'.",
+          "type": "boolean"
+        },
+        "force": {
+          "description": "Equivalent to '--force'.",
+          "type": "boolean"
+        },
+        "images": {
+          "description": "Equivalent to repeating '--image'.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "only_images": {
+          "description": "Alternative field name for the image list. Accepted as an alias for 'images'.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "title": "euler-files apptainer sync --input-json payload",
+      "type": "object"
+    },
+    "init": {
+      "$defs": {
+        "ApptainerConfig": {
+          "additionalProperties": false,
+          "description": "Apptainer-related configuration.",
+          "properties": {
+            "base_image": {
+              "description": "Apptainer base image template.",
+              "type": "string"
+            },
+            "build_args": {
+              "description": "Extra arguments passed to 'apptainer build'.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "container_venv_path": {
+              "description": "Canonical venv path inside the container.",
+              "type": "string"
+            },
+            "images": {
+              "additionalProperties": {
+                "$ref": "#/$defs/ApptainerImageConfig"
+              },
+              "description": "Known image metadata keyed by environment name.",
+              "type": "object"
+            },
+            "scratch_sif_dir": {
+              "description": "Scratch destination for synced .sif files.",
+              "type": "string"
+            },
+            "sif_store": {
+              "description": "Persistent storage directory for built .sif files.",
+              "type": "string"
+            },
+            "venv_base": {
+              "description": "Directory containing the managed Python environments.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "venv_base",
+            "sif_store",
+            "scratch_sif_dir"
+          ],
+          "type": "object"
+        },
+        "ApptainerImageConfig": {
+          "additionalProperties": false,
+          "description": "Stored metadata for one Apptainer image.",
+          "properties": {
+            "built_at": {
+              "description": "Unix timestamp of the most recent build.",
+              "type": "number"
+            },
+            "enabled": {
+              "description": "Whether the image is enabled for sync.",
+              "type": "boolean"
+            },
+            "python_version": {
+              "description": "Full Python version string, for example '3.11.5'.",
+              "type": "string"
+            },
+            "sif_filename": {
+              "description": "Filename of the built .sif image.",
+              "type": "string"
+            },
+            "venv_name": {
+              "description": "Name of the source venv under venv_base.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "venv_name",
+            "python_version",
+            "sif_filename"
+          ],
+          "type": "object"
+        },
+        "EulerFilesConfig": {
+          "additionalProperties": false,
+          "description": "Top-level euler-files configuration document.",
+          "properties": {
+            "apptainer": {
+              "$ref": "#/$defs/ApptainerConfig"
+            },
+            "cache_root": {
+              "description": "Relative path under scratch_base where euler-files stores caches.",
+              "type": "string"
+            },
+            "lock_timeout_seconds": {
+              "description": "Per-variable flock timeout in seconds.",
+              "type": "integer"
+            },
+            "migrations": {
+              "description": "Migration history entries.",
+              "items": {
+                "$ref": "#/$defs/MigrationRecord"
+              },
+              "type": "array"
+            },
+            "parallel_jobs": {
+              "description": "Number of concurrent sync jobs.",
+              "type": "integer"
+            },
+            "rsync_extra_args": {
+              "description": "Extra arguments passed to rsync.",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "scratch_base": {
+              "description": "Base scratch directory used for cache sync targets.",
+              "type": "string"
+            },
+            "skip_if_fresh_seconds": {
+              "description": "Marker freshness threshold in seconds.",
+              "type": "integer"
+            },
+            "vars": {
+              "additionalProperties": {
+                "$ref": "#/$defs/VarConfig"
+              },
+              "description": "Managed variables keyed by environment variable name.",
+              "type": "object"
+            },
+            "version": {
+              "description": "Config file version.",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "scratch_base",
+            "vars"
+          ],
+          "type": "object"
+        },
+        "MigrationRecord": {
+          "additionalProperties": false,
+          "description": "Recorded migration entry.",
+          "properties": {
+            "field_name": {
+              "description": "Config field that changed.",
+              "type": "string"
+            },
+            "migrated_at": {
+              "description": "Unix timestamp when the migration was recorded.",
+              "type": "number"
+            },
+            "new_path": {
+              "description": "Destination absolute path.",
+              "type": "string"
+            },
+            "old_path": {
+              "description": "Original absolute path.",
+              "type": "string"
+            },
+            "var_name": {
+              "description": "Environment variable name for variable migrations.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "old_path",
+            "new_path",
+            "migrated_at",
+            "field_name"
+          ],
+          "type": "object"
+        },
+        "VarConfig": {
+          "additionalProperties": false,
+          "description": "Configuration for one managed environment variable.",
+          "properties": {
+            "enabled": {
+              "description": "Whether the managed variable is enabled.",
+              "type": "boolean"
+            },
+            "source": {
+              "description": "Absolute path to the persistent source directory.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "source"
+          ],
+          "type": "object"
+        }
+      },
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "description": "Either a raw euler-files config object or an object wrapping it under 'config'.",
+      "oneOf": [
+        {
+          "$ref": "#/$defs/EulerFilesConfig"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Wrapper object containing the full config under 'config'.",
+          "properties": {
+            "config": {
+              "$ref": "#/$defs/EulerFilesConfig"
+            }
+          },
+          "required": [
+            "config"
+          ],
+          "type": "object"
+        }
+      ],
+      "title": "euler-files init --input-json payload"
+    },
+    "migrate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Arguments for migrating a managed path to a new location.",
+      "properties": {
+        "dry_run": {
+          "description": "Equivalent to '--dry-run'.",
+          "type": "boolean"
+        },
+        "keep_old": {
+          "description": "Keep the old directory after migration.",
+          "type": "boolean"
+        },
+        "new_path": {
+          "description": "Accepted alias for the destination path. Accepted as an alias for 'to'.",
+          "type": "string"
+        },
+        "no_delete": {
+          "description": "Accepted alias for 'keep_old'.",
+          "type": "boolean"
+        },
+        "to": {
+          "description": "Destination path.",
+          "type": "string"
+        },
+        "to_path": {
+          "description": "Accepted alias for the destination path. Accepted as an alias for 'to'.",
+          "type": "string"
+        },
+        "what": {
+          "description": "Managed variable or config field to migrate.",
+          "type": "string"
+        },
+        "yes": {
+          "description": "Equivalent to '--yes'.",
+          "type": "boolean"
+        }
+      },
+      "title": "euler-files migrate --input-json payload",
+      "type": "object"
+    },
+    "push": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Optional arguments for the push command.",
+      "properties": {
+        "dry_run": {
+          "description": "Equivalent to '--dry-run'.",
+          "type": "boolean"
+        },
+        "only_vars": {
+          "description": "Alternative field name for the variable list. Accepted as an alias for 'vars'.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "vars": {
+          "description": "Equivalent to repeating '--var'.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "title": "euler-files push --input-json payload",
+      "type": "object"
+    },
+    "shell-init": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Arguments for generating shell integration code.",
+      "properties": {
+        "shell": {
+          "description": "Target shell language for the generated helper.",
+          "enum": [
+            "bash",
+            "zsh",
+            "fish"
+          ],
+          "type": "string"
+        }
+      },
+      "title": "euler-files shell-init --input-json payload",
+      "type": "object"
+    },
+    "sync": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Optional arguments for the sync command.",
+      "properties": {
+        "dry_run": {
+          "description": "Equivalent to '--dry-run'.",
+          "type": "boolean"
+        },
+        "force": {
+          "description": "Equivalent to '--force'.",
+          "type": "boolean"
+        },
+        "only_vars": {
+          "description": "Alternative field name for the variable list. Accepted as an alias for 'vars'.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "vars": {
+          "description": "Equivalent to repeating '--var'.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "verbose": {
+          "description": "Equivalent to '--verbose'.",
+          "type": "boolean"
+        }
+      },
+      "title": "euler-files sync --input-json payload",
+      "type": "object"
+    },
+    "venv.install": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "packages"
+          ]
+        },
+        {
+          "required": [
+            "requirements"
+          ]
+        }
+      ],
+      "description": "Arguments for creating/reusing a uv environment and installing packages.",
+      "properties": {
+        "dry_run": {
+          "description": "Equivalent to '--dry-run'.",
+          "type": "boolean"
+        },
+        "env_name": {
+          "description": "Target environment name under the configured venv base.",
+          "type": "string"
+        },
+        "packages": {
+          "description": "Package requirement strings to install.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "python": {
+          "description": "Python version or interpreter passed to 'uv venv'.",
+          "type": "string"
+        },
+        "requirements": {
+          "description": "Accepted alias for the package requirement list. Accepted as an alias for 'packages'.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "venv_base": {
+          "description": "Override for the configured venv base directory.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "env_name"
+      ],
+      "title": "euler-files venv install --input-json payload",
+      "type": "object"
+    }
+  },
+  "kind": "all"
+}
