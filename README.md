@@ -222,6 +222,9 @@ installs packages into it.
 | `PACKAGES...`   | Package requirements to install                       |
 | `--python PY`   | Python version/interpreter to pass to `uv venv`       |
 | `--venv-base`   | Override `apptainer.venv_base` / `$VENV_DIR`          |
+| `--uv-cache-dir`| Override `uv_cache_dir` / `$UV_CACHE_DIR`             |
+| `--index-url`   | Primary package index URL                             |
+| `--extra-index-url` | Additional package index URL(s)                 |
 | `--dry-run`     | Show the uv commands without running them             |
 
 If a requirement includes a PyTorch CUDA wheel suffix such as
@@ -233,6 +236,56 @@ euler-files venv install my-ml-env torch==2.4.0+cu121 torchvision==0.19.0+cu121
 # internally adds:
 #   --extra-index-url https://download.pytorch.org/whl/cu121
 ```
+
+### `euler-files venv migrate [SOURCE] [TARGET]`
+
+Rebuilds one existing venv at a new target location by:
+
+1. freezing the source environment with `uv pip freeze`
+2. creating a fresh target venv with the same detected Python version
+3. reinstalling the frozen requirements into the target
+4. optionally verifying that source and target freeze outputs match
+
+| Option              | Description                                         |
+|---------------------|-----------------------------------------------------|
+| `SOURCE`            | Existing venv path                                  |
+| `TARGET`            | New venv path                                       |
+| `--python PY`       | Override the Python version/interpreter             |
+| `--uv-cache-dir`    | UV cache directory to use during rebuild            |
+| `--index-url`       | Primary package index URL                           |
+| `--extra-index-url` | Additional package index URL(s)                     |
+| `--dry-run`         | Show commands without rebuilding                    |
+| `--verify/--no-verify` | Enable/disable freeze comparison after rebuild   |
+| `--overwrite-target`| Replace an existing target venv                     |
+| `--delete-source`   | Delete the source venv after successful verification|
+| `--allow-copy`      | Allow cache and target on different filesystems     |
+
+### `euler-files venv migrate-store`
+
+Migrates `UV_CACHE_DIR` together with all venvs under a venv base. This is the
+bulk "move my uv installation store" workflow:
+
+1. copy the old uv cache to the new location
+2. rebuild each venv into the new venv base while pointing uv at the new cache
+3. optionally update config and emit new `VENV_DIR` / `UV_CACHE_DIR` exports
+
+| Option                | Description                                        |
+|-----------------------|----------------------------------------------------|
+| `--old-venv-base`     | Current venv base directory                        |
+| `--new-venv-base`     | New venv base directory                            |
+| `--old-uv-cache-dir`  | Current uv cache directory                         |
+| `--new-uv-cache-dir`  | New uv cache directory                             |
+| `--env NAME`          | Only migrate selected venv(s)                      |
+| `--exclude-env NAME`  | Skip selected venv(s)                              |
+| `--index-url`         | Primary package index URL                          |
+| `--extra-index-url`   | Additional package index URL(s)                    |
+| `--verify/--no-verify`| Enable/disable per-venv verification               |
+| `--continue-on-error` | Continue with later venvs after a failure          |
+| `--overwrite-targets` | Replace existing target venv directories           |
+| `--delete-old`        | Delete old cache and venv base after success       |
+| `--update-config`     | Update stored config paths after success           |
+| `--allow-copy`        | Allow cache and target on different filesystems    |
+| `--skip-cache-copy`   | Skip copying the old uv cache contents             |
 
 ## JSON mode
 
@@ -261,6 +314,9 @@ euler-files schema --kind cli --command apptainer.build
 
 # Only the --input-json schema for one command
 euler-files schema --kind input --command venv.install
+
+# Schema for the new venv migration payload
+euler-files schema --kind input --command venv.migrate-store
 ```
 
 ### Examples
@@ -270,6 +326,7 @@ euler-files schema --kind input --command venv.install
 cat <<'JSON' | euler-files init --input-json - --json
 {
   "scratch_base": "$SCRATCH",
+  "uv_cache_dir": "$SCRATCH/.cache/uv",
   "vars": {
     "HF_HOME": {"source": "/cluster/home/jdoe/.cache/huggingface"},
     "TORCH_HOME": {"source": "/cluster/home/jdoe/.cache/torch"}
@@ -289,7 +346,20 @@ cat <<'JSON' | euler-files venv install --input-json - --json
     "transformers",
     "datasets"
   ],
-  "python": "3.11"
+  "python": "3.11",
+  "uv_cache_dir": "/cluster/home/jdoe/.cache/uv"
+}
+JSON
+
+# Bulk-migrate VENV_DIR + UV_CACHE_DIR
+cat <<'JSON' | euler-files venv migrate-store --input-json - --json
+{
+  "old_venv_base": "/cluster/home/jdoe/venvs",
+  "new_venv_base": "/cluster/project/ml/venvs",
+  "old_uv_cache_dir": "/cluster/home/jdoe/.cache/uv",
+  "new_uv_cache_dir": "/cluster/project/ml/.cache/uv",
+  "verify": true,
+  "update_config": true
 }
 JSON
 ```
@@ -391,6 +461,11 @@ updated by other commands. You can also edit it by hand.
   // caches, marker files, and lock files. Each managed variable gets its
   // own subdirectory here (e.g. $SCRATCH/.cache/euler-files/HF_HOME/).
   "cache_root": ".cache/euler-files",
+
+  // Shared uv cache directory. Used by `euler-files venv install`,
+  // `euler-files venv migrate`, and `euler-files venv migrate-store`
+  // when no explicit --uv-cache-dir is provided.
+  "uv_cache_dir": "/cluster/home/jdoe/.cache/uv",
 
   // ── Managed environment variables ──────────────────────────────────
   // Each key is an env var name. When synced, euler-files will:
@@ -530,7 +605,7 @@ updated by other commands. You can also edit it by hand.
 ### Config path resolution
 
 - Config is always at `~/.euler-files.json`
-- `scratch_base` and `apptainer.venv_base` support `$ENV_VAR` syntax and `~`
+- `scratch_base`, `uv_cache_dir`, and `apptainer.venv_base` support `$ENV_VAR` syntax and `~`
   expansion (resolved at runtime)
 - All other paths are stored as absolute literals
 
@@ -675,6 +750,16 @@ apptainer shell --nv "$SIF"
 
 # Install new packages into the venv
 euler-files venv install my-ml-env accelerate
+
+# Rebuild one venv into a new location while preserving installed packages
+euler-files venv migrate ~/venvs/my-ml-env /project/ml/venvs/my-ml-env
+
+# Move the whole uv store: cache + all venvs
+euler-files venv migrate-store \
+  --old-venv-base ~/venvs \
+  --new-venv-base /project/ml/venvs \
+  --old-uv-cache-dir ~/.cache/uv \
+  --new-uv-cache-dir /project/ml/.cache/uv
 
 # Rebuild the image (--force overwrites the existing .sif)
 euler-files apptainer build my-ml-env --force

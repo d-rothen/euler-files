@@ -134,6 +134,85 @@ def test_venv_install_json_output(tmp_path: Path) -> None:
     assert payload["extra_index_urls"] == ["https://download.pytorch.org/whl/cu121"]
 
 
+def test_venv_migrate_json_output() -> None:
+    runner = CliRunner()
+    expected = {
+        "command": "venv-migrate",
+        "status": "migrated",
+        "source": "/old/env",
+        "target": "/new/env",
+        "verification": {"status": "matched"},
+        "errors": [],
+    }
+
+    with patch("euler_files.venv_migrate.run_single_venv_migration", return_value=expected):
+        result = runner.invoke(
+            main,
+            ["venv", "migrate", "/old/env", "/new/env", "--json"],
+        )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["ok"] is True
+    assert payload["command"] == "venv-migrate"
+    assert payload["target"] == "/new/env"
+
+
+def test_venv_migrate_store_json_output() -> None:
+    runner = CliRunner()
+    expected = {
+        "command": "venv-migrate-store",
+        "status": "migrated",
+        "old_venv_base": "/old/venvs",
+        "new_venv_base": "/new/venvs",
+        "old_uv_cache_dir": "/old/cache",
+        "new_uv_cache_dir": "/new/cache",
+        "shell_exports": {"VENV_DIR": "/new/venvs", "UV_CACHE_DIR": "/new/cache"},
+        "cache_copy": {"status": "copied"},
+        "environments": [],
+        "config_updates": [],
+        "deleted_old": False,
+        "warnings": [],
+        "errors": [],
+    }
+
+    with patch("euler_files.venv_migrate.run_venv_store_migration", return_value=expected):
+        result = runner.invoke(
+            main,
+            ["venv", "migrate-store", "--new-venv-base", "/new/venvs", "--new-uv-cache-dir", "/new/cache", "--json"],
+        )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["ok"] is True
+    assert payload["command"] == "venv-migrate-store"
+    assert payload["shell_exports"]["UV_CACHE_DIR"] == "/new/cache"
+
+
+def test_invalid_json_input_is_rejected() -> None:
+    runner = CliRunner()
+    result = runner.invoke(
+        main,
+        ["venv", "migrate", "--input-json", "-", "--json"],
+        input=json.dumps({"extra_index_urls": "not-a-list"}),
+    )
+
+    assert result.exit_code == 2
+    payload = json.loads(result.output)
+    assert payload["ok"] is False
+    assert "Invalid input JSON" in payload["error"]["message"]
+
+
+def test_venv_migrate_json_requires_noninteractive_fields() -> None:
+    runner = CliRunner()
+    result = runner.invoke(main, ["venv", "migrate", "/old/env", "--json"])
+
+    assert result.exit_code == 2
+    payload = json.loads(result.output)
+    assert payload["ok"] is False
+    assert "Missing required arguments" in payload["error"]["message"]
+
+
 def test_schema_command_outputs_bundle() -> None:
     runner = CliRunner()
     result = runner.invoke(main, ["schema"])
@@ -144,6 +223,7 @@ def test_schema_command_outputs_bundle() -> None:
     assert payload["cli"]["name"] == "euler-files"
     assert "sync" in payload["cli"]["commands"]
     assert "venv.install" in payload["input_json"]
+    assert "venv.migrate" in payload["input_json"]
 
 
 def test_schema_command_outputs_specific_input_schema() -> None:
@@ -155,10 +235,7 @@ def test_schema_command_outputs_specific_input_schema() -> None:
     assert payload["target_command"] == "venv.install"
     assert payload["input_json"]["title"] == "euler-files venv install --input-json payload"
     assert "env_name" in payload["input_json"]["properties"]
-    assert payload["input_json"]["anyOf"] == [
-        {"required": ["packages"]},
-        {"required": ["requirements"]},
-    ]
+    assert "extra_index_urls" in payload["input_json"]["properties"]
 
 
 def test_schema_command_outputs_specific_cli_schema() -> None:

@@ -70,6 +70,7 @@ class EulerFilesConfig:
     version: int = CONFIG_VERSION
     scratch_base: str = ""
     cache_root: str = ".cache/euler-files"
+    uv_cache_dir: str = ""
     vars: Dict[str, VarConfig] = field(default_factory=dict)
     rsync_extra_args: List[str] = field(default_factory=list)
     parallel_jobs: int = 4
@@ -89,6 +90,10 @@ class EulerFilesConfig:
     def lock_path_for(self, var_name: str) -> Path:
         """Return the lock file path for a given env var."""
         return Path(self.scratch_base) / self.cache_root / f".{var_name}.lock"
+
+    def uv_cache_path(self) -> Path:
+        """Return the expanded UV cache directory path."""
+        return Path(os.path.expandvars(os.path.expanduser(self.uv_cache_dir)))
 
 
 def apptainer_config_from_dict(raw: Dict[str, Any]) -> ApptainerConfig:
@@ -147,6 +152,7 @@ def config_from_dict(raw: Dict[str, Any]) -> EulerFilesConfig:
         version=raw["version"],
         scratch_base=scratch_base,
         cache_root=raw.get("cache_root", ".cache/euler-files"),
+        uv_cache_dir=raw.get("uv_cache_dir", ""),
         vars=vars_dict,
         rsync_extra_args=raw.get("rsync_extra_args", []),
         parallel_jobs=raw.get("parallel_jobs", 4),
@@ -170,6 +176,7 @@ def config_to_dict(config: EulerFilesConfig) -> Dict[str, Any]:
         "version": config.version,
         "scratch_base": config.scratch_base,
         "cache_root": config.cache_root,
+        "uv_cache_dir": config.uv_cache_dir,
         "vars": {k: {"source": v.source, "enabled": v.enabled} for k, v in config.vars.items()},
         "rsync_extra_args": config.rsync_extra_args,
         "parallel_jobs": config.parallel_jobs,
