@@ -1604,6 +1604,75 @@
               },
               {
                 "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Override the uv cache directory.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "uv_cache_dir",
+                "nargs": 1,
+                "opts": [
+                  "--uv-cache-dir"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Primary package index URL.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "index_url",
+                "nargs": 1,
+                "opts": [
+                  "--index-url"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Additional package index URL.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": true,
+                "name": "extra_index_url",
+                "nargs": 1,
+                "opts": [
+                  "--extra-index-url"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
                 "default": false,
                 "envvar": null,
                 "flag_value": true,
@@ -1615,6 +1684,779 @@
                 "nargs": 1,
                 "opts": [
                   "--dry-run"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Read command arguments from JSON file or '-' for stdin.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "input_json",
+                "nargs": 1,
+                "opts": [
+                  "--input-json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Emit machine-readable JSON.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "json_output",
+                "nargs": 1,
+                "opts": [
+                  "--json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show this message and exit.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "help",
+                "nargs": 1,
+                "opts": [
+                  "--help"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              }
+            ],
+            "short_help": null
+          },
+          "migrate": {
+            "deprecated": false,
+            "epilog": null,
+            "help": "Rebuild a venv at a new target location.",
+            "hidden": false,
+            "name": "migrate",
+            "params": [
+              {
+                "default": null,
+                "envvar": null,
+                "multiple": false,
+                "name": "source",
+                "nargs": 1,
+                "opts": [
+                  "source"
+                ],
+                "param_type_name": "argument",
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "default": null,
+                "envvar": null,
+                "multiple": false,
+                "name": "target",
+                "nargs": 1,
+                "opts": [
+                  "target"
+                ],
+                "param_type_name": "argument",
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Override the Python version/interpreter used for the new venv.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "python_version",
+                "nargs": 1,
+                "opts": [
+                  "--python"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "UV cache directory to use during rebuild.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "uv_cache_dir",
+                "nargs": 1,
+                "opts": [
+                  "--uv-cache-dir"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Primary package index URL.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "index_url",
+                "nargs": 1,
+                "opts": [
+                  "--index-url"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Additional package index URL.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": true,
+                "name": "extra_index_url",
+                "nargs": 1,
+                "opts": [
+                  "--extra-index-url"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show what would be done without rebuilding.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "dry_run",
+                "nargs": 1,
+                "opts": [
+                  "--dry-run"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": true,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Verify package parity after rebuild.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "verify",
+                "nargs": 1,
+                "opts": [
+                  "--verify"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [
+                  "--no-verify"
+                ],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Replace an existing target venv directory.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "overwrite_target",
+                "nargs": 1,
+                "opts": [
+                  "--overwrite-target"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Delete the source venv after a successful migration.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "delete_source",
+                "nargs": 1,
+                "opts": [
+                  "--delete-source"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Allow cache and target to be on different filesystems.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "allow_copy",
+                "nargs": 1,
+                "opts": [
+                  "--allow-copy"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Read command arguments from JSON file or '-' for stdin.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "input_json",
+                "nargs": 1,
+                "opts": [
+                  "--input-json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Emit machine-readable JSON.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "json_output",
+                "nargs": 1,
+                "opts": [
+                  "--json"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show this message and exit.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "help",
+                "nargs": 1,
+                "opts": [
+                  "--help"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              }
+            ],
+            "short_help": null
+          },
+          "migrate-store": {
+            "deprecated": false,
+            "epilog": null,
+            "help": "Migrate UV_CACHE_DIR together with all venvs under a venv base.",
+            "hidden": false,
+            "name": "migrate-store",
+            "params": [
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Current venv base directory.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "old_venv_base",
+                "nargs": 1,
+                "opts": [
+                  "--old-venv-base"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "New venv base directory.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "new_venv_base",
+                "nargs": 1,
+                "opts": [
+                  "--new-venv-base"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Current UV cache directory.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "old_uv_cache_dir",
+                "nargs": 1,
+                "opts": [
+                  "--old-uv-cache-dir"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "New UV cache directory.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "new_uv_cache_dir",
+                "nargs": 1,
+                "opts": [
+                  "--new-uv-cache-dir"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Only migrate specific venv(s).",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": true,
+                "name": "env_name",
+                "nargs": 1,
+                "opts": [
+                  "--env"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Exclude specific venv(s).",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": true,
+                "name": "exclude_env_name",
+                "nargs": 1,
+                "opts": [
+                  "--exclude-env"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Primary package index URL.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": false,
+                "name": "index_url",
+                "nargs": 1,
+                "opts": [
+                  "--index-url"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": null,
+                "envvar": null,
+                "flag_value": null,
+                "help": "Additional package index URL.",
+                "hidden": false,
+                "is_flag": false,
+                "multiple": true,
+                "name": "extra_index_url",
+                "nargs": 1,
+                "opts": [
+                  "--extra-index-url"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "text",
+                  "param_type": "String"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Show what would be done without migrating.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "dry_run",
+                "nargs": 1,
+                "opts": [
+                  "--dry-run"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": true,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Verify package parity after each rebuild.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "verify",
+                "nargs": 1,
+                "opts": [
+                  "--verify"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [
+                  "--no-verify"
+                ],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Continue migrating later venvs after a failure.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "continue_on_error",
+                "nargs": 1,
+                "opts": [
+                  "--continue-on-error"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Replace existing target venv directories.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "overwrite_targets",
+                "nargs": 1,
+                "opts": [
+                  "--overwrite-targets"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Delete old cache and venv base after success.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "delete_old",
+                "nargs": 1,
+                "opts": [
+                  "--delete-old"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": true,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Update stored config paths after success.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "update_config",
+                "nargs": 1,
+                "opts": [
+                  "--update-config"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [
+                  "--no-update-config"
+                ],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Allow cache and target to be on different filesystems.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "allow_copy",
+                "nargs": 1,
+                "opts": [
+                  "--allow-copy"
+                ],
+                "param_type_name": "option",
+                "prompt": null,
+                "required": false,
+                "secondary_opts": [],
+                "type": {
+                  "name": "boolean",
+                  "param_type": "Bool"
+                }
+              },
+              {
+                "count": false,
+                "default": false,
+                "envvar": null,
+                "flag_value": true,
+                "help": "Skip copying the old UV cache contents.",
+                "hidden": false,
+                "is_flag": true,
+                "multiple": false,
+                "name": "skip_cache_copy",
+                "nargs": 1,
+                "opts": [
+                  "--skip-cache-copy"
                 ],
                 "param_type_name": "option",
                 "prompt": null,
@@ -1947,6 +2789,10 @@
               "description": "Marker freshness threshold in seconds.",
               "type": "integer"
             },
+            "uv_cache_dir": {
+              "description": "Directory used for uv's shared package cache.",
+              "type": "string"
+            },
             "vars": {
               "additionalProperties": {
                 "$ref": "#/$defs/VarConfig"
@@ -2225,6 +3071,10 @@
               "description": "Marker freshness threshold in seconds.",
               "type": "integer"
             },
+            "uv_cache_dir": {
+              "description": "Directory used for uv's shared package cache.",
+              "type": "string"
+            },
             "vars": {
               "additionalProperties": {
                 "$ref": "#/$defs/VarConfig"
@@ -2441,18 +3291,6 @@
     "venv.install": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "additionalProperties": false,
-      "anyOf": [
-        {
-          "required": [
-            "packages"
-          ]
-        },
-        {
-          "required": [
-            "requirements"
-          ]
-        }
-      ],
       "description": "Arguments for creating/reusing a uv environment and installing packages.",
       "properties": {
         "dry_run": {
@@ -2461,6 +3299,17 @@
         },
         "env_name": {
           "description": "Target environment name under the configured venv base.",
+          "type": "string"
+        },
+        "extra_index_urls": {
+          "description": "Additional package index URLs.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "index_url": {
+          "description": "Primary package index URL used for installation.",
           "type": "string"
         },
         "packages": {
@@ -2486,10 +3335,145 @@
           "type": "string"
         }
       },
-      "required": [
-        "env_name"
-      ],
       "title": "euler-files venv install --input-json payload",
+      "type": "object"
+    },
+    "venv.migrate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Arguments for rebuilding one venv at a new target location.",
+      "properties": {
+        "allow_copy": {
+          "description": "Allow cache and target to live on different filesystems.",
+          "type": "boolean"
+        },
+        "delete_source": {
+          "description": "Delete the source venv after successful verification.",
+          "type": "boolean"
+        },
+        "dry_run": {
+          "description": "Equivalent to '--dry-run'.",
+          "type": "boolean"
+        },
+        "extra_index_urls": {
+          "description": "Additional package index URLs.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "index_url": {
+          "description": "Primary package index URL.",
+          "type": "string"
+        },
+        "overwrite_target": {
+          "description": "Allow replacing an existing target directory.",
+          "type": "boolean"
+        },
+        "python": {
+          "description": "Override Python version or interpreter.",
+          "type": "string"
+        },
+        "source": {
+          "description": "Existing venv path to migrate from.",
+          "type": "string"
+        },
+        "target": {
+          "description": "New venv path to create.",
+          "type": "string"
+        },
+        "uv_cache_dir": {
+          "description": "UV cache directory to use during rebuild.",
+          "type": "string"
+        },
+        "verify": {
+          "description": "Verify package parity after rebuild.",
+          "type": "boolean"
+        }
+      },
+      "title": "euler-files venv migrate --input-json payload",
+      "type": "object"
+    },
+    "venv.migrate-store": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "description": "Arguments for migrating UV_CACHE_DIR and all venvs under a venv base.",
+      "properties": {
+        "allow_copy": {
+          "description": "Allow cache and target directories on different filesystems.",
+          "type": "boolean"
+        },
+        "continue_on_error": {
+          "description": "Continue migrating later venvs after a failure.",
+          "type": "boolean"
+        },
+        "delete_old": {
+          "description": "Delete the old cache and venv base after success.",
+          "type": "boolean"
+        },
+        "dry_run": {
+          "description": "Equivalent to '--dry-run'.",
+          "type": "boolean"
+        },
+        "envs": {
+          "description": "Only migrate these venv names.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "exclude_envs": {
+          "description": "Skip these venv names.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "extra_index_urls": {
+          "description": "Additional package index URLs.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "index_url": {
+          "description": "Primary package index URL.",
+          "type": "string"
+        },
+        "new_uv_cache_dir": {
+          "description": "New uv cache directory.",
+          "type": "string"
+        },
+        "new_venv_base": {
+          "description": "New venv base directory.",
+          "type": "string"
+        },
+        "old_uv_cache_dir": {
+          "description": "Current uv cache directory.",
+          "type": "string"
+        },
+        "old_venv_base": {
+          "description": "Current venv base directory.",
+          "type": "string"
+        },
+        "overwrite_targets": {
+          "description": "Allow replacing existing target venv directories.",
+          "type": "boolean"
+        },
+        "skip_cache_copy": {
+          "description": "Skip copying the old uv cache contents.",
+          "type": "boolean"
+        },
+        "update_config": {
+          "description": "Update stored config fields after success.",
+          "type": "boolean"
+        },
+        "verify": {
+          "description": "Verify package parity after each rebuild.",
+          "type": "boolean"
+        }
+      },
+      "title": "euler-files venv migrate-store --input-json payload",
       "type": "object"
     }
   },
