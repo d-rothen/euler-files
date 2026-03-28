@@ -17,6 +17,21 @@ from euler_files.config import (
     save_config,
 )
 from euler_files.jsonio import dump_json, load_json_input
+from euler_files.schemas import (
+    apptainer_build_input_schema,
+    apptainer_fixup_input_schema,
+    apptainer_init_input_schema,
+    apptainer_prune_input_schema,
+    apptainer_sync_input_schema,
+    build_schema_payload,
+    init_input_schema,
+    migrate_input_schema,
+    push_input_schema,
+    register_input_json_schema,
+    shell_init_input_schema,
+    sync_input_schema,
+    venv_install_input_schema,
+)
 from euler_files import __version__
 
 
@@ -29,6 +44,7 @@ def main() -> None:
 @main.command()
 @click.option("--input-json", type=str, help="Read config from JSON file or '-' for stdin.")
 @click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
+@register_input_json_schema("init", init_input_schema())
 def init(input_json: Optional[str], json_output: bool) -> None:
     """Interactive setup wizard."""
     from euler_files.wizard import run_wizard
@@ -62,6 +78,7 @@ def init(input_json: Optional[str], json_output: bool) -> None:
 @click.option("--verbose", "-v", is_flag=True, help="Show rsync details on stderr.")
 @click.option("--input-json", type=str, help="Read command arguments from JSON file or '-' for stdin.")
 @click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
+@register_input_json_schema("sync", sync_input_schema())
 def sync(
     dry_run: bool,
     force: bool,
@@ -112,6 +129,7 @@ def status(json_output: bool) -> None:
 @click.option("--dry-run", is_flag=True, help="Show what would be pushed.")
 @click.option("--input-json", type=str, help="Read command arguments from JSON file or '-' for stdin.")
 @click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
+@register_input_json_schema("push", push_input_schema())
 def push(var: Tuple[str, ...], dry_run: bool, input_json: Optional[str], json_output: bool) -> None:
     """Reverse sync: copy scratch caches back to persistent storage."""
     from euler_files.push import run_push
@@ -138,6 +156,7 @@ def apptainer() -> None:
 @apptainer.command(name="init")
 @click.option("--input-json", type=str, help="Read config from JSON file or '-' for stdin.")
 @click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
+@register_input_json_schema("apptainer.init", apptainer_init_input_schema())
 def apptainer_init(input_json: Optional[str], json_output: bool) -> None:
     """Interactive setup for apptainer image management."""
     from euler_files.apptainer.wizard import run_apptainer_wizard
@@ -171,6 +190,7 @@ def apptainer_init(input_json: Optional[str], json_output: bool) -> None:
 @click.option("--dry-run", is_flag=True, help="Show what would be done without building.")
 @click.option("--input-json", type=str, help="Read command arguments from JSON file or '-' for stdin.")
 @click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
+@register_input_json_schema("apptainer.build", apptainer_build_input_schema())
 def apptainer_build(
     venv_name: Optional[str],
     force: bool,
@@ -211,6 +231,7 @@ def apptainer_build(
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt.")
 @click.option("--input-json", type=str, help="Read command arguments from JSON file or '-' for stdin.")
 @click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
+@register_input_json_schema("apptainer.prune", apptainer_prune_input_schema())
 def apptainer_prune(
     image_name: Optional[str],
     mode: Optional[str],
@@ -245,6 +266,7 @@ def apptainer_prune(
 @click.option("--dry-run", is_flag=True, help="Show what would be fixed without changing files.")
 @click.option("--input-json", type=str, help="Read command arguments from JSON file or '-' for stdin.")
 @click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
+@register_input_json_schema("apptainer.fixup", apptainer_fixup_input_schema())
 def apptainer_fixup(
     venv_name: Optional[str],
     dry_run: bool,
@@ -274,6 +296,7 @@ def apptainer_fixup(
 @click.option("--image", multiple=True, help="Sync only specific image(s). Can be repeated.")
 @click.option("--input-json", type=str, help="Read command arguments from JSON file or '-' for stdin.")
 @click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
+@register_input_json_schema("apptainer.sync", apptainer_sync_input_schema())
 def apptainer_sync(
     dry_run: bool,
     force: bool,
@@ -313,6 +336,7 @@ def venv() -> None:
 @click.option("--dry-run", is_flag=True, help="Show the uv commands without running them.")
 @click.option("--input-json", type=str, help="Read command arguments from JSON file or '-' for stdin.")
 @click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
+@register_input_json_schema("venv.install", venv_install_input_schema())
 def venv_install(
     env_name: Optional[str],
     packages: Tuple[str, ...],
@@ -355,6 +379,7 @@ def venv_install(
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt.")
 @click.option("--input-json", type=str, help="Read command arguments from JSON file or '-' for stdin.")
 @click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
+@register_input_json_schema("migrate", migrate_input_schema())
 def migrate(
     what: Optional[str],
     to_path: Optional[str],
@@ -402,6 +427,7 @@ def migrate(
 )
 @click.option("--input-json", type=str, help="Read command arguments from JSON file or '-' for stdin.")
 @click.option("--json", "json_output", is_flag=True, help="Emit machine-readable JSON.")
+@register_input_json_schema("shell-init", shell_init_input_schema())
 def shell_init(shell: Optional[str], input_json: Optional[str], json_output: bool) -> None:
     """Output shell function for easier usage.
 
@@ -428,6 +454,30 @@ def shell_init(shell: Optional[str], input_json: Optional[str], json_output: boo
         click.echo(script)
     except (FileNotFoundError, ValueError) as exc:
         _fail(exc, json_output=json_output, exit_code=2)
+
+
+@main.command()
+@click.option(
+    "--kind",
+    type=click.Choice(["all", "cli", "input"]),
+    default="all",
+    show_default=True,
+    help="Which schema set to emit.",
+)
+@click.option(
+    "--command",
+    "command_path",
+    type=str,
+    default=None,
+    help="Optional dotted command path, for example 'sync' or 'apptainer.build'.",
+)
+def schema(kind: str, command_path: Optional[str]) -> None:
+    """Emit machine-readable schemas for CLI invocation and --input-json payloads."""
+    try:
+        payload = build_schema_payload(main, command_path=command_path, kind=kind)
+        click.echo(dump_json(payload), nl=False)
+    except ValueError as exc:
+        _fail(exc, json_output=False, exit_code=2)
 
 
 def _resolve_value(current: Optional[str], payload: Dict[str, Any], *keys: str) -> Optional[str]:

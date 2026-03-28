@@ -243,6 +243,26 @@ Most operational commands also support:
 
 This makes the CLI usable in pipelines without scraping terminal text.
 
+### `euler-files schema`
+
+Emits machine-readable schemas for:
+
+- the Click command surface (arguments, options, types, defaults)
+- the supported `--input-json` payloads
+
+Examples:
+
+```bash
+# Full schema bundle
+euler-files schema
+
+# Only the Click invocation schema for one command
+euler-files schema --kind cli --command apptainer.build
+
+# Only the --input-json schema for one command
+euler-files schema --kind input --command venv.install
+```
+
 ### Examples
 
 ```bash

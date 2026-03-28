@@ -134,6 +134,46 @@ def test_venv_install_json_output(tmp_path: Path) -> None:
     assert payload["extra_index_urls"] == ["https://download.pytorch.org/whl/cu121"]
 
 
+def test_schema_command_outputs_bundle() -> None:
+    runner = CliRunner()
+    result = runner.invoke(main, ["schema"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["kind"] == "all"
+    assert payload["cli"]["name"] == "euler-files"
+    assert "sync" in payload["cli"]["commands"]
+    assert "venv.install" in payload["input_json"]
+
+
+def test_schema_command_outputs_specific_input_schema() -> None:
+    runner = CliRunner()
+    result = runner.invoke(main, ["schema", "--kind", "input", "--command", "venv.install"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["target_command"] == "venv.install"
+    assert payload["input_json"]["title"] == "euler-files venv install --input-json payload"
+    assert "env_name" in payload["input_json"]["properties"]
+    assert payload["input_json"]["anyOf"] == [
+        {"required": ["packages"]},
+        {"required": ["requirements"]},
+    ]
+
+
+def test_schema_command_outputs_specific_cli_schema() -> None:
+    runner = CliRunner()
+    result = runner.invoke(main, ["schema", "--kind", "cli", "--command", "apptainer.build"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert payload["target_command"] == "apptainer.build"
+    assert payload["cli"]["name"] == "build"
+    param_names = [param["name"] for param in payload["cli"]["params"]]
+    assert "venv_name" in param_names
+    assert "force" in param_names
+
+
 def test_shell_init_bash() -> None:
     runner = CliRunner()
     result = runner.invoke(main, ["shell-init"])
